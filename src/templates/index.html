@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Информация о книгах</title>
+    <!-- <link rel="stylesheet" href="/static/css/style.css"> -->
+    <link rel="icon" href="https://img.icons8.com/?size=100&id=ChugQlss1ohB&format=png&color=000000" type="image/png">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #fafafa; margin: 20px; }
+        h1 { text-align: center; margin-bottom: 20px; }
+        #error-message { color: red; text-align: center; margin-bottom: 10px; }
+        #folder-list { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; }
+        .folder-item {
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 15px;
+            width: 250px;
+            background: #fff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .folder-item img { max-width: 100%; height: auto; margin-bottom: 10px; border-radius: 5px; }
+        .folder-item h2 { font-size: 18px; margin-bottom: 10px; }
+        .folder-item a { text-decoration: none; color: #007bff; }
+        .folder-item a:hover { text-decoration: underline; }
+        .editable { border-bottom: 1px dashed #999; cursor: text; }
+        #add-folder-form { max-width: 500px; margin: 0 auto 30px auto; display: flex; flex-direction: column; gap: 10px; }
+        #add-folder-form input, #add-folder-form button { padding: 8px; font-size: 16px; }
+    </style>
+    <script>
+// Получение всех книг и отображение на странице
+async function getFoldersInfo() {
+    try {
+        const response = await fetch('/folders-info');
+        if (!response.ok) throw new Error('Не удалось загрузить информацию о папках.');
+
+        const folders = await response.json();
+        const folderList = document.getElementById('folder-list');
+        folderList.innerHTML = '';
+
+        folders.forEach(folder => {
+            const folderItem = document.createElement('div');
+            folderItem.classList.add('folder-item');
+            folderItem.style.position = 'relative'; // для кнопки удалить
+
+            // кнопка удалить
+            const deleteBtn = document.createElement('span');
+            deleteBtn.textContent = '❌';
+            deleteBtn.style.position = 'absolute';
+            deleteBtn.style.top = '5px';
+            deleteBtn.style.right = '5px';
+            deleteBtn.style.cursor = 'pointer';
+            deleteBtn.title = "Удалить книгу";
+            deleteBtn.onclick = async () => {
+                if (!confirm(`Вы уверены, что хотите удалить книгу "${folder.title}"?`)) return;
+
+                const resp = await fetch(`/delete-folder/${folder.folder_name}`, { method: 'DELETE' });
+                const result = await resp.json();
+                if (resp.ok) {
+                    alert('Книга удалена!');
+                    folderItem.remove();
+                } else {
+                    alert('Ошибка: ' + (result.error || 'Неизвестная ошибка'));
+                }
+            };
+            folderItem.appendChild(deleteBtn);
+
+            // title (span editable)
+            const titleSpan = document.createElement('span');
+            titleSpan.classList.add('editable');
+            titleSpan.textContent = folder.title;
+            titleSpan.contentEditable = "true";
+            titleSpan.addEventListener('blur', () => updateField(folder.folder_name, 'title', titleSpan.textContent));
+
+            const titleElement = document.createElement('h2');
+            const linkElement = document.createElement('a');
+            linkElement.href = `/book/${folder.folder_name}`;
+            linkElement.appendChild(titleSpan);
+            titleElement.appendChild(linkElement);
+            folderItem.appendChild(titleElement);
+
+            // image над автором
+            const imgContainer = document.createElement('p');
+            imgContainer.style.textAlign = 'center';
+
+            const imgSpan = document.createElement('span');
+            imgSpan.style.cursor = 'pointer';
+            imgSpan.style.display = 'inline-block';
+            imgSpan.style.maxWidth = '100%';
+
+            function createImg(src) {
+                const imgElement = document.createElement('img');
+                imgElement.src = src;
+                imgElement.style.maxWidth = '100%';
+                imgElement.style.height = 'auto';
+                imgElement.style.borderRadius = '5px';
+                imgElement.style.display = 'block';
+                imgElement.style.margin = '0 auto';
+                return imgElement;
+            }
+
+            if (folder.image) {
+                imgSpan.appendChild(createImg(folder.image));
+            } else {
+                imgSpan.textContent = '📷';
+            }
+
+            imgSpan.onclick = async () => {
+                const newImage = prompt("Введите ссылку на изображение:", folder.image || '');
+                if (!newImage) return;
+
+                await updateField(folder.folder_name, 'image', newImage);
+                folder.image = newImage;
+
+                imgSpan.innerHTML = '';
+                imgSpan.appendChild(createImg(newImage));
+            };
+
+            imgContainer.appendChild(imgSpan);
+            folderItem.insertBefore(imgContainer, folderItem.children[1]); // над автором
+
+            // author
+            const authorP = document.createElement('p');
+            authorP.innerHTML = '<strong>Автор:</strong> ';
+            const authorSpan = document.createElement('span');
+            authorSpan.classList.add('editable');
+            authorSpan.textContent = folder.author;
+            authorSpan.contentEditable = "true";
+            authorSpan.addEventListener('blur', () => updateField(folder.folder_name, 'author', authorSpan.textContent));
+            authorP.appendChild(authorSpan);
+            folderItem.appendChild(authorP);
+
+            // difficulty
+            const diffP = document.createElement('p');
+            diffP.innerHTML = '<strong>Сложность:</strong> ';
+            const diffSpan = document.createElement('span');
+            diffSpan.classList.add('editable');
+            diffSpan.textContent = folder.difficulty;
+            diffSpan.contentEditable = "true";
+            diffSpan.addEventListener('blur', () => updateField(folder.folder_name, 'difficulty', diffSpan.textContent));
+            diffP.appendChild(diffSpan);
+            folderItem.appendChild(diffP);
+
+            folderList.appendChild(folderItem);
+        });
+    } catch (error) {
+        document.getElementById('error-message').textContent = error.message;
+    }
+}
+
+// Добавление новой книги
+async function addFolder(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    const data = Object.fromEntries(formData.entries());
+    data.folder_name = data.title;
+
+    const response = await fetch('/add-folder', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+
+    const result = await response.json();
+    if (response.ok) {
+        alert('Книга добавлена!');
+        event.target.reset();
+        getFoldersInfo();
+    } else {
+        alert('Ошибка: ' + (result.error || 'Неизвестная ошибка'));
+    }
+}
+
+// Обновление поля на сервере
+async function updateField(folder_name, field, value) {
+    const data = {};
+    data[field] = value;
+    const response = await fetch(`/edit-folder/${folder_name}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+    const result = await response.json();
+    if (!response.ok) alert('Ошибка: ' + (result.error || 'Неизвестная ошибка'));
+}
+
+window.onload = getFoldersInfo;
+
+
+// Drag and drop functionality
+
+</script>
+
+
+
+</head>
+<body>
+<h1>Информация о книгах</h1>
+<div id="error-message"></div>
+
+    <!-- Форма добавления книги -->
+    <form id="add-folder-form" onsubmit="addFolder(event)">
+        <input type="text" name="title" placeholder="Название книги (и папки)" required>
+        <input type="text" name="author" placeholder="Автор">
+        <input type="text" name="difficulty" placeholder="Сложность">
+        <input type="text" name="image" placeholder="Ссылка на изображение (опционально)">
+        <button type="submit">Добавить книгу</button>
+    </form>
+
+    <div id="folder-list"></div>
+
+    <div style="text-align: center; margin-top: 40px;">
+        <small>Создано с ❤️ для любителей книг.</small>
+    </div>
+</div>
+
+
+</body>
+</html>

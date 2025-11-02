@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../.."
+		},
+		{
+			"path": "../../../../../../Desktop/Practice/Python/Selenium"
+		}
+	],
+	"settings": {
+		"liveServer.settings.multiRootWorkspaceName": "Selenium"
+	}
+}

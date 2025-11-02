@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Книга</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> -->
+    <link rel="icon" href="https://img.icons8.com/?size=100&id=wNZ3FTgUzSQX&format=png&color=000000" type="image/png">
+    <style>
+        #translation-box {
+            font-size: 1.25em;
+            position: absolute;
+            /* min-width: 6em;
+            max-height: 3em; */
+            /* max-height: 4em; */
+            /* width: 200px; */
+            z-index: 1000;
+            background-color: rgb(255, 0, 0);
+            border-bottom: 1px solid grey; /* Добавить границу снизу */
+            padding: 5px;
+            border-radius: 5px;
+            /* text-align: left; */
+
+            /* transition: opacity 0.2s ease-in-out; */
+
+            color: white; /* Белый цвет текста для контраста */
+            box-sizing: border-box; /* Чтобы padding не выходил за пределы */
+            /* display: none; */
+
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .sentence-translation-box {
+            font-size: 1.25em;
+            position: absolute;
+            /* top: 0; 
+            left: 0; */
+            max-width: 90%;
+            /* max-height: 20%; */
+            z-index: 9999;
+            background-color: darkblue; /* Фоновый цвет, можно настроить */
+            border-bottom: 1px solid grey; /* Добавить границу снизу */
+            padding: 10px; /* Отступы для панели */
+            border-radius: 5px;
+
+            display: none;
+            /* color: white;*/
+            box-sizing: border-box; /* Чтобы padding не выходил за пределы */
+        }
+
+
+        .save-word {
+            /* background-color: lightblue; */
+            background-color: lightyellow;
+            /* background-color: yellow; */
+            color: black;
+        }
+        .saved-word {
+            display: inline-block;
+            background-color: greenyellow;
+            color: black;
+            font-weight: bold;
+            padding: 5px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Основные стили для кнопки */
+button {
+    padding: 0.25em 0.5em;         /* Отступы внутри кнопки */
+    /* background-color: greenyellow;  */
+    border: none;               /* Убираем рамку */
+    border-radius: 8px;         /* Скругленные углы */
+    cursor: pointer;            /* Курсор при наведении */
+    transition: all 0.3s ease;  /* Плавные переходы */
+    font-weight: bold;          /* Жирный текст */
+}
+
+/* .speak-button {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 1.25em;
+    text-align: right;
+}
+
+.save-button {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    font-size: 1.25em;
+    text-align: right;
+} */
+
+
+/* Стиль для кнопки с иконкой "➕" */
+button:hover {
+    background-color: yellowgreen;  /* Темнее зеленый при наведении */
+    transform: scale(1.05);      /* Увеличение кнопки при наведении */
+}
+
+/* Стиль для кнопки с иконкой "❌" */
+button:active {
+    transform: scale(0.95);      /* Немного уменьшить кнопку при клике */
+}
+
+/* Стиль для кнопки с красным фоном при удалении слова */
+button.delete {
+    background-color: #f44336;  /* Красный фон для кнопки удаления */
+}
+
+button.delete:hover {
+    background-color: #e53935;  /* Темнее красный при наведении */
+}
+
+    </style>
+</head>
+<body>
+   <h1>Содержимое книги</h1>
+    <div id="book-content">
+        {{ content|safe }}  <!-- Выводим преобразованный текст книги -->
+    </div>
+
+    <div id="translation-box" class="translation-box"></div>
+    <div id="sentence-translation-box" class="sentence-translation-box"></div>
+
+    <br>
+
+    <div class="saved-translations">
+        <h2>Сохраненные слова:</h2>
+        <div id="saved-words-list"></div>
+    </div>
+
+    <br>
+    <a href="/">Назад к списку книг</a> <!-- Ссылка на главную страницу -->
+
+    <!-- <script src="{{ url_for('static', filename='js/script.js') }}"></script> -->
+    <script src="{{ url_for('static', filename='js/try.js') }}"></script>
+</body>
+</html>
+
+
+<!-- <style>
+    body {
+    background-color: black;
+    }
+    
+    #translation-box {
+        font-size: 1.25em;
+        z-index: 1000;
+        background-color: rgb(255, 0, 0);
+        border-bottom: 1px solid grey;
+        padding: 5px;
+        border-radius: 5px;
+        color: white;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .container {
+        display: flex;
+        justify-content: space-between; /* Размещаем текст и кнопку по разным краям */
+        align-items: center; /* Выровнять по вертикали */
+        width: 100%;
+    }
+    
+    button.right {
+        padding: 0.25em 0.5em;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: bold;
+    }
+    
+    </style>
+    
+    <h1>This is a Heading</h1>
+    <div id="translation-box">
+      <div class="container">
+        <b>: прокля́тие auch: прокля́тье n. </b>
+        <button class="right">🔊</button>
+      </div>
+      <br>
+      <div class="container">
+        <i>: vertreiben |vertrieb, vertrieben| </i>
+        <button class="right">❌</button>
+      </div>
+    </div> -->

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Информация о книгах</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- <link rel="icon" href="https://img.icons8.com/?size=100&id=qUxyhLdUpnnH&format=png&color=000000" type="image/png"> -->
+    <link rel="icon" href="https://img.icons8.com/?size=100&id=ChugQlss1ohB&format=png&color=000000" type="image/png">
+
+    <script>
+        async function getFoldersInfo() {
+            try {
+                const response = await fetch('/folders-info');
+                if (!response.ok) throw new Error('Не удалось загрузить информацию о папках.');
+
+                const folders = await response.json();
+                const folderList = document.getElementById('folder-list');
+                folderList.innerHTML = ''; // Очищаем старый список
+
+                folders.forEach(folder => {
+                    const folderItem = document.createElement('div');
+                    folderItem.classList.add('folder-item');
+
+                    // Заголовок с ссылкой
+                    const titleElement = document.createElement('h2');
+                    const linkElement = document.createElement('a');
+                    linkElement.href = `/book/${folder.folder_name}`;
+                    linkElement.textContent = folder.title;
+                    titleElement.appendChild(linkElement);
+                    folderItem.appendChild(titleElement);
+
+                    if (folder.image) {
+                        const imageElement = document.createElement('img');
+                        imageElement.src = folder.image;
+                        folderItem.appendChild(imageElement);
+                    }
+
+                    folderItem.innerHTML += `
+                        <p><strong>Автор:</strong> ${folder.author}</p>
+                        <p><strong>Жанры:</strong> ${folder.genres.join(', ')}</p>
+                        <p><strong>Язык:</strong> ${folder.language}</p>
+                        <p><strong>Сложность:</strong> ${folder.difficulty}</p>
+                        <p><strong>Год:</strong> ${folder.year}</p>
+                        <p><strong>Страниц:</strong> ${folder.pages}</p>
+                    `;
+
+                    folderList.appendChild(folderItem);
+                });
+            } catch (error) {
+                document.getElementById('error-message').textContent = error.message;
+            }
+        }
+
+        async function addFolder(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+            data.genres = data.genres ? data.genres.split(',').map(g => g.trim()) : [];
+
+            const response = await fetch('/add-folder', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                alert('Папка добавлена!');
+                event.target.reset();
+                getFoldersInfo();
+            } else {
+                alert('Ошибка: ' + (result.error || 'Неизвестная ошибка'));
+            }
+        }
+
+        window.onload = getFoldersInfo;
+    </script>
+</head>
+<body>
+    <h1>Информация о книгах</h1>
+    <div id="error-message"></div>
+
+    <!-- Форма для добавления новой папки -->
+    <form id="add-folder-form" onsubmit="addFolder(event)">
+        <input type="text" name="folder_name" placeholder="Имя папки" required>
+        <input type="text" name="title" placeholder="Название книги" required>
+        <input type="text" name="author" placeholder="Автор" required>
+        <input type="text" name="genres" placeholder="Жанры (через запятую)">
+        <input type="text" name="language" placeholder="Язык">
+        <input type="text" name="difficulty" placeholder="Сложность">
+        <input type="number" name="year" placeholder="Год">
+        <input type="number" name="pages" placeholder="Количество страниц">
+        <input type="text" name="image" placeholder="Ссылка на изображение (опционально)">
+        <button type="submit">Добавить книгу</button>
+    </form>
+
+    <div id="folder-list"></div>
+</body>
+</html>

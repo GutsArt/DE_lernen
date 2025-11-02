@@ -1,0 +1,98 @@
+/* body {
+    background-color: black;
+    max-width: 1000px;
+}
+
+h1, h2 {
+    color: white;
+    font-size: 1.75em;
+    text-align: center;
+}
+
+p {
+    font-size: 1.5em;
+    text-indent: 20px;
+    color: gray;
+    padding: 0.25em;
+    padding-left: 2%;
+    padding-right: 2%;
+    padding-top: 0%;
+    padding-bottom: 0%;
+} */
+
+
+
+
+
+
+
+
+/* Устанавливаем черный фон для страницы */
+body {
+    background-color: black;
+    color: gray; /* Серый текст */
+    font-family: Arial, sans-serif;
+    padding: 20px;
+}
+
+h1, h2 {
+    color: lightgray; /* Цвет заголовков */
+    font-size: 2em;
+}
+
+p {
+    font-size: 1.5em;
+    text-indent: 20px;
+    color: gray;
+    padding: 0.1em;
+    padding-left: 2%;
+    padding-right: 2%;
+    padding-top: 0%;
+    padding-bottom: 0%;
+}
+
+.word {
+    color: gray; /* Цвет слов для перевода */
+    cursor: pointer;
+    /* text-decoration: underline; */
+}
+
+.word:hover {
+    color: cyan; /* Цвет при наведении */
+    /* font-weight: 600; */
+}
+
+img {
+    /* max-width: 50%; */
+    max-width: 350px;
+}
+/* .translation-box {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    display: none;
+} */
+
+.highlighted {
+    background-color: darkgreen;
+}
+
+.selected-word {
+    /* font-weight: bold; */
+}
+
+/* Стиль для ссылок */
+a {
+    font-size: 1.5em;
+    /* color: lightblue; */
+    text-decoration: none;
+}
+
+/* a:hover {
+    text-decoration: underline;
+} */
