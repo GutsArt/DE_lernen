@@ -1,0 +1,142 @@
+:root {
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --text-color: #e0e0e0;
+    --accent-color: #4dabf7;
+    --border-color: #333;
+    --hover-color: #64b5f6;
+    --error-color: #ff6b6b;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 20px;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: var(--accent-color);
+}
+
+#error-message {
+    color: var(--error-color);
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+#folder-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.folder-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 15px;
+    width: 250px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    text-align: center;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.folder-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+
+.folder-item img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+    border-radius: 6px;
+}
+
+.folder-item h2 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: var(--accent-color);
+}
+
+.folder-item a {
+    text-decoration: none;
+    color: var(--accent-color);
+}
+
+.folder-item a:hover {
+    color: var(--hover-color);
+}
+
+.editable {
+    border-bottom: 1px dashed var(--accent-color);
+    cursor: text;
+}
+
+#add-folder-form {
+    max-width: 500px;
+    margin: 0 auto 30px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#add-folder-form input,
+#add-folder-form button {
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+}
+
+#add-folder-form input {
+    background: #2a2a2a;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+#add-folder-form input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 5px var(--accent-color);
+}
+
+#add-folder-form button {
+    background: var(--accent-color);
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#add-folder-form button:hover {
+    background: var(--hover-color);
+}
+
+.folder-item span[title="Удалить книгу"] {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    color: var(--error-color);
+    transition: transform 0.2s;
+}
+
+.folder-item span[title="Удалить книгу"]:hover {
+    transform: scale(1.1);
+}
+
+small {
+    color: #888;
+}
+
+@media (max-width: 600px) {
+    .folder-item {
+        width: 90%;
+    }
+}
