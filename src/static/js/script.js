@@ -82,16 +82,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function showTranslation(element, wordId, translationInfo) {
         const rect = element.getBoundingClientRect();
-        const boxWidth = 200; // Задаем примерную ширину translationBox
-        const padding = 10;   // Отступ от границ экрана
+
 
         translationBox.innerHTML = ''; // Очищаем предыдущий перевод
 
         // ПЕРЕВОД слова
         const source = translationInfo.article ? 'Leo' : 'G';
         const mainText = document.createElement('div');
-        mainText.innerHTML = `<b>${source}</b>: ${translationInfo.translation}`;
+        mainText.innerHTML = `<b>${source}</b>: <span class="copyable-word">${translationInfo.translation}</span>`;
         translationBox.appendChild(mainText);
+
+        // находим <span> внутри mainText
+        const span = mainText.querySelector('.copyable-word');
+        span.style.cursor = "pointer";
+        span.title = "Нажми, чтобы скопировать";
+
+        span.addEventListener("click", function () {
+            navigator.clipboard.writeText(span.innerText);
+        });
+
 
         // 🔊 Кнопка озвучивания
         const speakButton = document.createElement('button');
@@ -106,10 +115,17 @@ document.addEventListener('DOMContentLoaded', () => {
         // Тип слова + aртикль с словом / формы глагола
         if (translationInfo.article) {
             const infoLine = document.createElement('div');
-            infoLine.innerHTML = `<i>${translationInfo.type}</i>: ${translationInfo.article}`;
+            infoLine.innerHTML = `<i>${translationInfo.type}</i>: <span class="copyable-word">${translationInfo.article}</span>`;
             translationBox.appendChild(infoLine);
-        }
 
+            const articleSpan = infoLine.querySelector('.copyable-word');
+            articleSpan.style.cursor = "pointer";
+            articleSpan.title = "Нажми, чтобы скопировать";
+
+            articleSpan.addEventListener("click", function () {
+                navigator.clipboard.writeText(articleSpan.innerText);
+            });
+        }
 
         // Кнопка сохранения/удаления слова
         const saveButton = document.createElement('button');
@@ -129,9 +145,12 @@ document.addEventListener('DOMContentLoaded', () => {
         translationBox.appendChild(saveButton);
 
         translationBox.style.display = 'block';
+
+        const padding = 32; // Отступ от краев окна RANDOM
+        const boxWidth = translationBox.offsetWidth; // Ширина блока с небольшим запасом
     
         let left = rect.left + window.scrollX;
-        let top = rect.top + window.scrollY - translationBox.offsetHeight - 5;
+        let top = rect.top + window.scrollY - translationBox.offsetHeight - 5; // 5px отступ сверху
     
         // Проверяем, не выходит ли блок за левую границу
         if (left < padding) {
@@ -142,10 +161,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (left + boxWidth > window.innerWidth - padding) {
             left = window.innerWidth - boxWidth - padding;
         }
-    
+
         translationBox.style.left = `${left}px`;
         translationBox.style.top = `${top}px`;
     }
+
+
 
 
     document.addEventListener("click", function(event) {
@@ -159,7 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     
-
 
     function showSentenceTranslation(element, sentence, translation) {
         const rect = element.getBoundingClientRect();
@@ -178,8 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
             speechSynthesis.speak(utterance);
         });
         sentenceTranslationBox.appendChild(speakButton);    
-
-
     }
 
     
