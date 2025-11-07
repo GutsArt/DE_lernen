@@ -81,124 +81,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function showTranslation(element, wordId, translationInfo) {
+        // === 1. Очистка и подготовка ===
+        translationBox.innerHTML = '';
         const rect = element.getBoundingClientRect();
 
-        translationBox.innerHTML = ''; // Очищаем предыдущий перевод
+        // === 2. Создаём универсальную строку (текст + кнопка) ===
+        const createRow = (labelHTML, buttonIcon, onButtonClick) => {
+            const row = document.createElement('div');
+            row.classList.add('translation-row');
 
-        // ПЕРЕВОД слова
+            const textContainer = document.createElement('div');
+            textContainer.classList.add('translation-text');
+            textContainer.innerHTML = labelHTML;
+            row.appendChild(textContainer);
+
+            const button = document.createElement('button');
+            button.textContent = buttonIcon;
+            button.addEventListener('click', onButtonClick);
+            row.appendChild(button);
+
+            translationBox.appendChild(row);
+            return textContainer;
+        };
+
+        // === 3. Первая строка: основной перевод + 🔊 ===
         const source = translationInfo.article ? 'Leo' : 'G';
-        const mainText = document.createElement('div');
-        mainText.innerHTML = `<b>${source}</b>: <span class="copyable-word">${translationInfo.translation}</span>`;
-        // translationBox.appendChild(mainText);
-
-        // находим <span> внутри mainText
-        const span = mainText.querySelector('.copyable-word');
-        span.style.cursor = "pointer";
-        span.title = "Нажми, чтобы скопировать";
-
-        span.addEventListener("click", function () {
-            navigator.clipboard.writeText(span.innerText);
-        });
-
-
-        // 🔊 Кнопка озвучивания
-        const speakButton = document.createElement('button');
-        speakButton.innerText += "🔊";
-        speakButton.addEventListener("click", function () {
+        const mainTextHTML = `<b>${source}</b>: <span class="copyable-word">${translationInfo.translation}</span>`;
+        const mainText = createRow(mainTextHTML, '🔊', () => {
             const utterance = new SpeechSynthesisUtterance(wordId);
-            utterance.lang = "de-DE";
+            utterance.lang = 'de-DE';
             speechSynthesis.speak(utterance);
         });
-        mainText.appendChild(speakButton);
 
-        translationBox.appendChild(mainText);
+        // Добавляем копирование по клику
+        const mainWord = mainText.querySelector('.copyable-word');
+        mainWord.title = 'Нажми, чтобы скопировать';
+        mainWord.addEventListener('click', () => {
+            navigator.clipboard.writeText(mainWord.innerText);
+        });
 
-        
-        // Кнопка сохранения/удаления слова
-        const saveButton = document.createElement('button');
-        saveButton.innerText = savedWords[wordId] ? "❌" : "➕";
-        
-        saveButton.addEventListener("click", function toggleWord() {
+        // === 4. Вторая строка (если есть артикль/тип) + ➕/❌ ===
+        const saveButtonHandler = () => {
             if (savedWords[wordId]) {
                 removeWord(wordId);
                 element.classList.remove('save-word');
-                saveButton.innerText = "➕";
             } else {
                 saveWord(wordId, translationInfo.translation);
                 element.classList.add('save-word');
-                saveButton.innerText = "❌";
             }
-        });
+            showTranslation(element, wordId, translationInfo); // Перерисовать состояние кнопки
+        };
 
-
-        // Тип слова + aртикль с словом / формы глагола
         if (translationInfo.article) {
-            const infoLine = document.createElement('div');
-            infoLine.innerHTML = `<i>${translationInfo.type}</i>: <span class="copyable-word">${translationInfo.article}</span>`;
-            infoLine.appendChild(saveButton);
-            translationBox.appendChild(infoLine);
-            
-            const articleSpan = infoLine.querySelector('.copyable-word');
-            articleSpan.style.cursor = "pointer";
-            articleSpan.title = "Нажми, чтобы скопировать";
+            const infoTextHTML = `<i>${translationInfo.type}</i>: <span class="copyable-word">${translationInfo.article}</span>`;
+            const infoText = createRow(infoTextHTML, savedWords[wordId] ? '❌' : '➕', saveButtonHandler);
 
-            articleSpan.addEventListener("click", function () {
+            const articleSpan = infoText.querySelector('.copyable-word');
+            articleSpan.title = 'Нажми, чтобы скопировать';
+            articleSpan.addEventListener('click', () => {
                 navigator.clipboard.writeText(articleSpan.innerText);
             });
-
         } else {
-            mainText.appendChild(saveButton);
-            translationBox.appendChild(mainText);
+            // Если нет артикля — добавить кнопку сохранения к первой строке
+            const saveButton = document.createElement('button');
+            saveButton.textContent = savedWords[wordId] ? '❌' : '➕';
+            saveButton.addEventListener('click', saveButtonHandler);
+            mainText.parentElement.appendChild(saveButton);
         }
-        
 
-
-    //     translationBox.innerHTML = `
-    // <div>
-    // <div>
-    //     <b>Test</b>: <span class="copyable-word" title="Click to copy" style="cursor: pointer;">placeholder</span>
-    //     <button>🔊</button>
-    // </div>
-
-    // <div>
-    //     <i>Type</i>: <span class="copyable-word" title="Click to copy" style="cursor: pointer;">example</span>
-    //     <button>➕</button>
-    // </div>
-    // </div>
-    // `;
-        //     translationBox.innerHTML = `
-        // <div>
-        // <div>
-        //     <b>Test</b>: <span class="copyable-word" title="Click to copy" style="cursor: pointer;">placeholder</span>
-        //     <button>✔</button>
-        //     <button>🔊</button>
-        //     <button>🔊</button>
-        // </div>
-        // <button>🔊</button>
-        // </div>
-        // `;
-
+        // === 5. Показать блок перевода ===
         translationBox.style.display = 'block';
 
-        const padding = 32; // Отступ от краев окна RANDOM
-        const boxWidth = translationBox.offsetWidth; // Ширина блока с небольшим запасом
-    
+        // Аккуратное позиционирование над элементом
+        const padding = 16;
+        const boxWidth = translationBox.offsetWidth;
         let left = rect.left + window.scrollX;
-        let top = rect.top + window.scrollY - translationBox.offsetHeight - 5; // 5px отступ сверху
-    
-        // Проверяем, не выходит ли блок за левую границу
-        if (left < padding) {
-            left = padding;
-        }
-    
-        // Проверяем, не выходит ли блок за правую границу
+        let top = rect.top + window.scrollY - translationBox.offsetHeight - 8;
+
+        // Не выходить за экран
         if (left + boxWidth > window.innerWidth - padding) {
             left = window.innerWidth - boxWidth - padding;
         }
+        if (left < padding) left = padding;
+        if (top < padding) top = rect.bottom + window.scrollY + 8; // если нет места сверху — показать снизу
 
         translationBox.style.left = `${left}px`;
         translationBox.style.top = `${top}px`;
     }
+
 
 
 
@@ -221,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sentenceTranslationBox.style.left = `${rect.left}px`;
         sentenceTranslationBox.style.top = `${rect.bottom + window.scrollY + 5}px`;
         sentenceTranslationBox.style.display = 'block';
-        sentenceTranslationBox.innerHTML = `\\\|/: ${translation}`;
+        sentenceTranslationBox.innerHTML = `\\\|/: ${translation} `;
 
         // 🔊 Кнопка для озвучивания
         const speakButton = document.createElement('button');

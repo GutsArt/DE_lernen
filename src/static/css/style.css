@@ -106,6 +106,21 @@ a:hover {
     pointer-events: auto;
 }
 
+/* ==== Общие строки (текст + кнопка) ==== */
+.translation-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75em;
+    margin-top: 0.4em;
+}
+
+/* Текстовая часть строки */
+.translation-text {
+    flex: 1;
+    overflow-wrap: break-word;
+}
+
 /* Стиль текста */
 #translation-box b {
     color: #00ffff;
@@ -128,24 +143,37 @@ a:hover {
     transform: scale(1.05);
 }
 
-/* Кнопки */
+/* Кнопки (🔊 и ➕ / ❌) */
 #translation-box button {
     background-color: rgba(0, 255, 255, 0.15);
     border: 1px solid rgba(0, 255, 255, 0.3);
     border-radius: 8px;
     color: #00ffff;
-    padding: 5px 10px;
-    margin-left: 0.4em;
-    font-size: 1em;
-    margin-top: 0.6em;
+    padding: 4px 8px;
+    font-size: 1.1em;
     cursor: pointer;
     transition: all 0.25s ease;
+    min-width: 2em;
+    text-align: center;
+    line-height: 1.2;
 }
 
 #translation-box button:hover {
     background-color: rgba(0, 255, 255, 0.25);
     color: #fff;
-    transform: scale(1.05);
+    transform: scale(1.1);
+}
+
+/* Анимация плавного появления */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 
