@@ -28,17 +28,22 @@ async function getFoldersInfo() {
             };
             folderItem.appendChild(deleteBtn);
 
+            // Заголовок книги (только текст, редактируемый)
+            const titleElement = document.createElement('h2');
             const titleSpan = document.createElement('span');
             titleSpan.classList.add('editable');
             titleSpan.textContent = folder.title;
             titleSpan.contentEditable = "true";
             titleSpan.addEventListener('blur', () => updateField(folder.folder_name, 'title', titleSpan.textContent));
+            titleElement.appendChild(titleSpan);
 
-            const titleElement = document.createElement('h2');
+            // Ссылка на книгу отдельным элементом
             const linkElement = document.createElement('a');
             linkElement.href = `/book/${folder.folder_name}`;
-            linkElement.appendChild(titleSpan);
+            linkElement.textContent = "📖"; // Можно заменить на иконку 📖 или кнопку
+            linkElement.style.marginLeft = "10px"; // Отступ от названия
             titleElement.appendChild(linkElement);
+
             folderItem.appendChild(titleElement);
 
             const imgContainer = document.createElement('p');
