@@ -34,7 +34,6 @@ async function getFoldersInfo() {
             titleSpan.classList.add('editable');
             titleSpan.textContent = folder.title;
             titleSpan.contentEditable = "true";
-            titleSpan.addEventListener('blur', () => updateField(folder.folder_name, 'title', titleSpan.textContent));
             titleElement.appendChild(titleSpan);
 
             // Ссылка на книгу отдельным элементом
@@ -45,6 +44,18 @@ async function getFoldersInfo() {
             titleElement.appendChild(linkElement);
 
             folderItem.appendChild(titleElement);
+
+            // Обработчик изменения заголовка
+            titleSpan.addEventListener('blur', async () => {
+                const oldFolderName = folder.folder_name;
+                const newTitle = titleSpan.textContent.trim();
+
+                if (newTitle && newTitle !== oldFolderName) {
+                    await updateField(oldFolderName, 'title', newTitle); // обновляем на сервере
+                    folder.folder_name = newTitle; // обновляем локально
+                    linkElement.href = `/book/${newTitle}`; // меняем ссылку
+                }
+            });
 
             const imgContainer = document.createElement('p');
             imgContainer.style.textAlign = 'center';
