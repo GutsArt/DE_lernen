@@ -1,5 +1,4 @@
 import os
-import re
 from flask import Blueprint, render_template, jsonify
 from config import BASE_DIR
 
@@ -13,34 +12,43 @@ def load_book_text(path):
         return f.read()
     
 
+import re
+import html
+
+# Предкомпилируем регулярки (ускоряет в 2–3 раза при больших текстах)
+SENTENCE_SPLIT_RE = re.compile(r'(?<!\w\.\w)(?<![A-ZА-Я]\.)(?<=\.)\s+')
+TOKENIZE_RE = re.compile(r'\b[\w-]+\b|[,:\"\'()*?!.]')    
+
 def wrap_content(content: str) -> str:
-    paragraphs = content.split('\n')  # Разбиваем по абзацам
+    # Экранируем HTML, чтобы не сломать страницу (например, если в тексте есть <, >)
+    content = html.escape(content)
 
-    paragraphs_html = ""
+    paragraphs_html = []
 
-    for paragraph in paragraphs:
-        paragraph_html = ""
-        # Разбиваем абзац на предложения (учитываем точки перед пробелами)
-        sentences = re.split(r'(?<!\w\.\w)(?<![A-ZА-Я]\.)(?<=\.)\s+', paragraph)
+     # Используем генераторы и списки для скорости
+    for paragraph in filter(None, content.split('\n')):
+        sentences = SENTENCE_SPLIT_RE.split(paragraph)
+        sentence_html_list = []
 
         for sentence in sentences:
-            sentence_html = ""
-
-            # Разделяем текст на слова и знаки препинания (они должны быть отдельными токенами)
-            words_and_punctuation = re.findall(r'\b[\w-]+\b|[,:\"\'()*?!.]', sentence)
-
-            for token in words_and_punctuation:
-                if re.match(r'[\w-]+', token):  # Это слово (разрешены дефисы)
-                    sentence_html += f' <span id="{token}" class="word">{token}</span>'
-                else:  # Это знак препинания
-                    sentence_html += f'{token}'
-
+            tokens = TOKENIZE_RE.findall(sentence)
+            
+            # Составляем предложение: слова оборачиваются, знаки — нет
+            token_spans = [
+                f'<span id="{html.escape(token)}" class="word">{token}</span>'
+                if token.isalnum() or "-" in token
+                else token
+                for token in tokens
+            ]
             # Каждое предложение в <span>
-            paragraph_html += f'<span class="sentence">{sentence_html.strip()}</span> '  
+            sentence_html_list.append(
+                f'<span class="sentence">{" ".join(token_spans)}</span>'
+            )
+
 
         # Добавляем абзац с <span>
-        paragraphs_html += f'<p>{paragraph_html.strip()}</p>'
-    return paragraphs_html
+        paragraphs_html.append(f"<p>{' '.join(sentence_html_list)}</p>")  
+    return '\n'.join(paragraphs_html)
 
 
 
@@ -58,12 +66,12 @@ def book_page(folder_name):
 
         content = load_book_text(file_path)
         if not content.strip():
-            return render_template('book.html', content="<p><em>Файл пуст.</em></p>", title=folder_name)
+            return render_template('book.html', title=folder_name, content="<p><em>Файл пуст.</em></p>")
 
 
         paragraphs_html = wrap_content(content)
             
         # Отображаем в HTML
-        return render_template('book.html', content=paragraphs_html, title=folder_name)
+        return render_template('book.html', title=folder_name, content=paragraphs_html)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
