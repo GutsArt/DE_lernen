@@ -10,12 +10,13 @@
 </head>
 <body>
    <h1>Содержимое книги</h1>
+   <h2>{{ title }}</h2>
     <div id="book-content">
         {{ content|safe }}  <!-- Выводим преобразованный текст книги -->
     </div>
 
-    <div id="translation-box" class="translation-box"></div>
-    <div id="sentence-translation-box" class="sentence-translation-box"></div>
+    <div id="translation-box" class="translation-box" style="display: none;"></div>
+    <div id="sentence-translation-box" class="sentence-translation-box" style="display: none;"></div>
 
     <br>
 
