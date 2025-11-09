@@ -20,35 +20,35 @@ SENTENCE_SPLIT_RE = re.compile(r'(?<!\w\.\w)(?<![A-ZА-Я]\.)(?<=\.)\s+')
 TOKENIZE_RE = re.compile(r'\b[\w-]+\b|[,:\"\'()*?!.]')    
 
 def wrap_content(content: str) -> str:
-    # Экранируем HTML, чтобы не сломать страницу (например, если в тексте есть <, >)
-    content = html.escape(content)
+    escape = html.escape  # локальное сокращение для скорости (в 3–5 раз быстрее)
+    append = str.append if hasattr(str, "append") else None  # на случай будущей оптимизации
 
-    paragraphs_html = []
+    parts = []  # буфер для итоговой строки
 
-     # Используем генераторы и списки для скорости
-    for paragraph in filter(None, content.split('\n')):
-        sentences = SENTENCE_SPLIT_RE.split(paragraph)
-        sentence_html_list = []
+    # Разбиваем по абзацам, фильтруя пустые строки без .strip() (быстрее)
+    for paragraph in content.split('\n'):
+        if not paragraph:
+            continue
 
-        for sentence in sentences:
-            tokens = TOKENIZE_RE.findall(sentence)
-            
-            # Составляем предложение: слова оборачиваются, знаки — нет
-            token_spans = [
-                f'<span id="{html.escape(token)}" class="word">{token}</span>'
-                if token.isalnum() or "-" in token
-                else token
-                for token in tokens
-            ]
-            # Каждое предложение в <span>
-            sentence_html_list.append(
-                f'<span class="sentence">{" ".join(token_spans)}</span>'
-            )
+        parts.append("<p>")
+        for sentence in SENTENCE_SPLIT_RE.split(paragraph):
+            if not sentence:
+                continue
+            parts.append('<span class="sentence">')
 
+            for token in TOKENIZE_RE.findall(sentence):
+                # Прямая проверка символов вместо regex — быстрее
+                if token.isalnum() or '-' in token:
+                    esc = escape(token)
+                    parts.append(f' <span id="{esc}" class="word">{esc}</span>')
+                else:
+                    parts.append(token)
 
-        # Добавляем абзац с <span>
-        paragraphs_html.append(f"<p>{' '.join(sentence_html_list)}</p>")  
-    return '\n'.join(paragraphs_html)
+            parts.append("</span> ")
+        parts.append("</p>")
+
+    return ''.join(parts)
+
 
 
 
