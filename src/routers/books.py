@@ -19,6 +19,7 @@ import html
 SENTENCE_SPLIT_RE = re.compile(r'(?<!\w\.\w)(?<![A-ZА-Я]\.)(?<=\.)\s+')
 TOKENIZE_RE = re.compile(r'\b[\w-]+\b|[,:\"\'()*?!.]')
 PARAGRAPH_SPLIT_RE = re.compile(r'\n{2,}') # \n\n  
+HEADING_RE = re.compile(r'^(#{1,6})\s*(.+)$')  # поддержка #...###### заголовков
 
 
 def wrap_content(content: str) -> str:
@@ -30,10 +31,16 @@ def wrap_content(content: str) -> str:
 
     # Разбиваем по абзацам, фильтруя пустые строки без .strip() (быстрее)
     for paragraph in filter(None, PARAGRAPH_SPLIT_RE.split(content)):
-        if not paragraph:
+        # if not paragraph:
+        #     continue
+
+        # Проверяем, не заголовок ли это (начинается с #)
+        heading_match = HEADING_RE.match(paragraph.strip())
+        if heading_match:
+            level = len(heading_match.group(1))  # количество #
+            text = escape(heading_match.group(2).strip())
+            parts.append(f"<h{level}>{text}</h{level}>")
             continue
-
-
 
         parts.append("<p>")
         for sentence in SENTENCE_SPLIT_RE.split(paragraph):
