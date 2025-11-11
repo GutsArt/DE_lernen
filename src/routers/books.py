@@ -17,18 +17,23 @@ import html
 
 # Предкомпилируем регулярки (ускоряет в 2–3 раза при больших текстах)
 SENTENCE_SPLIT_RE = re.compile(r'(?<!\w\.\w)(?<![A-ZА-Я]\.)(?<=\.)\s+')
-TOKENIZE_RE = re.compile(r'\b[\w-]+\b|[,:\"\'()*?!.]')    
+TOKENIZE_RE = re.compile(r'\b[\w-]+\b|[,:\"\'()*?!.]')
+PARAGRAPH_SPLIT_RE = re.compile(r'\n{2,}') # \n\n  
+
 
 def wrap_content(content: str) -> str:
     escape = html.escape  # локальное сокращение для скорости (в 3–5 раз быстрее)
-    append = str.append if hasattr(str, "append") else None  # на случай будущей оптимизации
+    # append = str.append if hasattr(str, "append") else None  # на случай будущей оптимизации
 
+    # parts = ["<div class='book-content'>"]  # буфер для итоговой строки
     parts = []  # буфер для итоговой строки
 
     # Разбиваем по абзацам, фильтруя пустые строки без .strip() (быстрее)
-    for paragraph in content.split('\n'):
+    for paragraph in filter(None, PARAGRAPH_SPLIT_RE.split(content)):
         if not paragraph:
             continue
+
+
 
         parts.append("<p>")
         for sentence in SENTENCE_SPLIT_RE.split(paragraph):
@@ -47,6 +52,7 @@ def wrap_content(content: str) -> str:
             parts.append("</span> ")
         parts.append("</p>")
 
+    # parts.append("</div>")
     return ''.join(parts)
 
 
