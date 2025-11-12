@@ -22,44 +22,38 @@ PARAGRAPH_SPLIT_RE = re.compile(r'\n{2,}') # \n\n
 HEADING_RE = re.compile(r'^(#{1,6})\s*(.+)$')  # поддержка #...###### заголовков
 
 
-def wrap_content(content: str) -> str:
-    escape = html.escape  # локальное сокращение для скорости (в 3–5 раз быстрее)
-    # append = str.append if hasattr(str, "append") else None  # на случай будущей оптимизации
-
-    # parts = ["<div class='book-content'>"]  # буфер для итоговой строки
-    parts = []  # буфер для итоговой строки
-
-    # Разбиваем по абзацам, фильтруя пустые строки без .strip() (быстрее)
-    for paragraph in filter(None, PARAGRAPH_SPLIT_RE.split(content)):
-        # if not paragraph:
-        #     continue
-
-        # Проверяем, не заголовок ли это (начинается с #)
-        heading_match = HEADING_RE.match(paragraph.strip())
-        if heading_match:
-            level = len(heading_match.group(1))  # количество #
-            text = escape(heading_match.group(2).strip())
-            parts.append(f"<h{level}>{text}</h{level}>")
+def tokenize_to_html(text):
+    """Разбивает строку на слова и пунктуацию, оборачивает в HTML."""
+    escape = html.escape
+    parts = []
+    for sentence in SENTENCE_SPLIT_RE.split(text):
+        if not sentence:
             continue
+        parts.append('<span class="sentence">')
+        for token in TOKENIZE_RE.findall(sentence):
+            if token.isalnum() or '-' in token:
+                esc = escape(token)
+                parts.append(f' <span id="{esc}" class="word">{esc}</span>')
+            else:
+                parts.append(token)
+        parts.append("</span> ")
+    return ''.join(parts)
 
-        parts.append("<p>")
-        for sentence in SENTENCE_SPLIT_RE.split(paragraph):
-            if not sentence:
-                continue
-            parts.append('<span class="sentence">')
+def wrap_content(content):
+    escape = html.escape
+    parts = []
 
-            for token in TOKENIZE_RE.findall(sentence):
-                # Прямая проверка символов вместо regex — быстрее
-                if token.isalnum() or '-' in token:
-                    esc = escape(token)
-                    parts.append(f' <span id="{esc}" class="word">{esc}</span>')
-                else:
-                    parts.append(token)
+    # Разделяем текст по двойным переводам строк
+    for block in filter(None, PARAGRAPH_SPLIT_RE.split(content.strip())):
+        block_stripped = block.strip()
+        heading_match = HEADING_RE.match(block_stripped)
+        if heading_match:
+            level = len(heading_match.group(1))
+            text = heading_match.group(2).strip()
+            parts.append(f"<h{level}>{tokenize_to_html(text)}</h{level}>")
+        else:
+            parts.append(f"<p>{tokenize_to_html(block_stripped)}</p>")
 
-            parts.append("</span> ")
-        parts.append("</p>")
-
-    # parts.append("</div>")
     return ''.join(parts)
 
 
