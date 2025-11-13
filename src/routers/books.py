@@ -22,7 +22,7 @@ PARAGRAPH_SPLIT_RE = re.compile(r'\n{2,}') # \n\n
 HEADING_RE = re.compile(r'^(#{1,6})\s*(.+)$')  # поддержка #...###### заголовков
 
 
-def tokenize_to_html(text):
+def tokenize_to_html(text: str) -> str:
     """Разбивает строку на слова и пунктуацию, оборачивает в HTML."""
     escape = html.escape
     parts = []
@@ -39,7 +39,7 @@ def tokenize_to_html(text):
         parts.append("</span> ")
     return ''.join(parts)
 
-def wrap_content(content):
+def wrap_content(content: str) -> str:
     escape = html.escape
     parts = []
 
