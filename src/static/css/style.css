@@ -89,7 +89,8 @@ a:hover {
 
 /* Базовый стиль для выделенных слов */
 .save-word {
-  background-color: #fff6b3; /* мягкое жёлтое выделение */
+  background-color: #4d4d00;
+  color: #fffccf;
   border-radius: 6px;
   padding: 2px 5px;
   cursor: pointer;
@@ -100,7 +101,7 @@ a:hover {
 
 /* При наведении */
 .save-word:hover {
-  background-color: #ffeb80;
+  background-color: #666600;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   transform: scale(1.03);
 }
@@ -111,16 +112,10 @@ a:hover {
   transform: scale(0.98);
 }
 
-/* Для тёмной темы (если используется) */
+/* Для тёмной темы (если используется)
 @media (prefers-color-scheme: dark) {
-  .save-word {
-    background-color: #4d4d00;
-    color: #fffccf;
-  }
-  .save-word:hover {
-    background-color: #666600;
-  }
-}
+
+} */
 
 
 /* ====== Перевод отдельного слова ====== */
