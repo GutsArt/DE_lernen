@@ -4,9 +4,7 @@ from config import BASE_DIR
 
 books_bp = Blueprint("books_bp", __name__)
 
-from functools import lru_cache
-# Кэширование при больших текстах
-@lru_cache(maxsize=128)
+
 def load_book_text(path):
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
