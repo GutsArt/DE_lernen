@@ -9,14 +9,14 @@ from functools import lru_cache
 @lru_cache(maxsize=128)
 def load_book_text_cached(path, mtime):
     """Возвращает содержимое файла, кэшируя его по пути и времени изменения."""
-    print(f"Loading book text from {path} (mtime: {mtime})")
+    # print(f"Loading book text from {path} (mtime: {mtime})")
     with open(path, "r", encoding="utf-8") as f:
         return f.read()
     
 def load_book_text(path):
     """Читает файл через кэш, учитывая время последнего изменения."""
     mtime = os.path.getmtime(path)
-    print(f"File mtime for {path}: {mtime}")
+    # print(f"File mtime for {path}: {mtime}")
     return load_book_text_cached(path, mtime)
     
 
