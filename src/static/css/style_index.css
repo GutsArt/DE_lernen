@@ -73,10 +73,32 @@ h1 {
     color: var(--hover-color);
 }
 
+
 .editable {
     border-bottom: 1px dashed var(--accent-color);
     cursor: text;
+    display: inline-block;
+    min-width: 2ch;
+    /* min-height: 1.2em;
+    padding: 2px 4px; */
+    /* caret-color: var(--accent-color); */
 }
+
+/* Placeholder shown only when element is empty */
+/* .editable:empty::before {
+    content: "Добавить...";
+    color: #888;
+    pointer-events: none;
+} */
+
+/* Remove placeholder on focus and make focus visible */
+/* .editable:focus::before {
+    content: "";
+}
+.editable:focus {
+    outline: 2px solid rgba(77,171,247,0.18);
+    border-bottom-style: solid;
+} */
 
 #add-folder-form {
     max-width: 500px;
