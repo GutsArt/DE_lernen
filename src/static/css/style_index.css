@@ -85,20 +85,20 @@ h1 {
 }
 
 /* Placeholder shown only when element is empty */
-/* .editable:empty::before {
+.editable:empty::before {
     content: "Добавить...";
-    color: #888;
+    color: var(--error-color);
     pointer-events: none;
-} */
+}
 
 /* Remove placeholder on focus and make focus visible */
-/* .editable:focus::before {
+.editable:focus::before {
     content: "";
 }
-.editable:focus {
+/* .editable:focus {
     outline: 2px solid rgba(77,171,247,0.18);
     border-bottom-style: solid;
-} */
+}  */
 
 #add-folder-form {
     max-width: 500px;
