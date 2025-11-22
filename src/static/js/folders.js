@@ -85,7 +85,7 @@ async function getFoldersInfo() {
             folderItem.appendChild(imgContainer);
 
             const authorP = document.createElement('p');
-            authorP.innerHTML = '<strong>Автор:</strong> ';
+            authorP.innerHTML = '<strong>Автор: </strong> ';
             const authorSpan = document.createElement('span');
             authorSpan.classList.add('editable');
             authorSpan.textContent = folder.author;
@@ -95,7 +95,7 @@ async function getFoldersInfo() {
             folderItem.appendChild(authorP);
 
             const diffP = document.createElement('p');
-            diffP.innerHTML = '<strong>Сложность:</strong> ';
+            diffP.innerHTML = '<strong>Сложность: </strong> ';
             const diffSpan = document.createElement('span');
             diffSpan.classList.add('editable');
             diffSpan.textContent = folder.difficulty;
