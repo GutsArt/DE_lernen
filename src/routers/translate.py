@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify
 import requests
 from bs4 import BeautifulSoup
 # from utils.parsers import get_word_type, get_word_translate
-# from utils.translator import translate_sentence
+from utils.translator import translate_sentence
 
 translate_bp = Blueprint("translate", __name__)
 
@@ -78,8 +78,7 @@ def translate_word(word):
         translation_info = get_word_translate(soup)
 
         if translation_info["translation"] == "Не найдено":
-            return translate_sentence(word)
-            # return jsonify({"translation": translate_sentence(word)})
+            return jsonify({"translation": translate_sentence(word)})
 
         return jsonify({
             "word": word,
@@ -89,19 +88,18 @@ def translate_word(word):
         })
     except Exception as e:
         try:
-            return translate_sentence(word)
+            return jsonify({"translation": translate_sentence(word)})
         except Exception as e2:
             return jsonify({"error": f"{str(e)}; {str(e2)}"}), 500
     
  
-# Translate full sentences with Google Translate
-from googletrans import Translator
-translator = Translator()
+# # Translate full sentences with Google Translate
+# from googletrans import Translator
+# translator = Translator()
 
 @translate_bp.route('/translate_sentence/<sentence>', methods=['GET'])
-def translate_sentence(sentence):
+def translate_sentence_route(sentence):
     try:
-        translated = translator.translate(sentence, src='de', dest='ru')
-        return jsonify({'translation': translated.text})
+        return jsonify({"translation": translate_sentence(sentence)})
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({"error": str(e)}), 500
