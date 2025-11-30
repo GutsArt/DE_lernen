@@ -5,8 +5,8 @@ from config import BASE_DIR
 books_bp = Blueprint("books_bp", __name__)
 
 from functools import lru_cache
-# Кэширование при больших текстах
-@lru_cache(maxsize=128)
+
+@lru_cache(maxsize=2)  # храним только 2 результата
 def load_book_text_cached(path, mtime):
     """Возвращает содержимое файла, кэшируя его по пути и времени изменения."""
     with open(path, "r", encoding="utf-8") as f:
