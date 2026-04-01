@@ -1,28 +1,28 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Информация о книгах</title>
+    <title>Інформація про книги</title>
     <link rel="icon" href="https://img.icons8.com/?size=100&id=ChugQlss1ohB&format=png&color=ffffff" type="image/png">
     <link rel="stylesheet" href="/static/css/style_index.css">
 </head>
 <body>
-<h1>Информация о книгах</h1>
+<h1>Інформація про книги</h1>
 <div id="error-message"></div>
 
 <form id="add-folder-form" onsubmit="addFolder(event)">
-    <input type="text" name="title" placeholder="Название книги (и папки)" required>
+    <input type="text" name="title" placeholder="Назва книги (і папки)" required>
     <input type="text" name="author" placeholder="Автор">
-    <input type="text" name="difficulty" placeholder="Сложность">
-    <input type="text" name="image" placeholder="Ссылка на изображение (опционально)">
-    <button type="submit">Добавить книгу</button>
+    <input type="text" name="difficulty" placeholder="Складність">
+    <input type="text" name="image" placeholder="Посилання на зображення (необов'язково)">
+    <button type="submit">Додати книгу</button>
 </form>
 
 <div id="folder-list"></div>
 
 <div style="text-align: center; margin-top: 40px;">
-    <small>Создано с ❤️ для любителей книг.</small>
+    <small>Створено з ❤️ для поціновувачів книг.</small>
 </div>
 
 <script src="{{ url_for('static', filename='js/folders.js') }}"></script>
