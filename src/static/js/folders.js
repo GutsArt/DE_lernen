@@ -1,7 +1,7 @@
 async function getFoldersInfo() {
     try {
         const response = await fetch('/folders-info');
-        if (!response.ok) throw new Error('Не удалось загрузить информацию о папках.');
+        if (!response.ok) throw new Error('Не вдалося завантажити інформацію про папки.');
 
         const folders = await response.json();
         const folderList = document.getElementById('folder-list');
@@ -14,16 +14,16 @@ async function getFoldersInfo() {
 
             const deleteBtn = document.createElement('span');
             deleteBtn.textContent = '❌';
-            deleteBtn.title = "Удалить книгу";
+            deleteBtn.title = "Видалити книгу";
             deleteBtn.onclick = async () => {
-                if (!confirm(`Вы уверены, что хотите удалить книгу "${folder.title}"?`)) return;
+                if (!confirm(`Ви впевнені, що хочете видалити книгу "${folder.title}"?`)) return;
                 const resp = await fetch(`/delete-folder/${folder.folder_name}`, { method: 'DELETE' });
                 const result = await resp.json();
                 if (resp.ok) {
-                    alert('Книга удалена!');
+                    alert('Книгу видалено!');
                     folderItem.remove();
                 } else {
-                    alert('Ошибка: ' + (result.error || 'Неизвестная ошибка'));
+                    alert('Помилка: ' + (result.error || 'Невідома помилка'));
                 }
             };
             folderItem.appendChild(deleteBtn);
@@ -73,7 +73,7 @@ async function getFoldersInfo() {
             else imgSpan.textContent = '📷';
 
             imgSpan.onclick = async () => {
-                const newImage = prompt("Введите ссылку на изображение:", folder.image || '');
+                const newImage = prompt("Введіть посилання на зображення:", folder.image || '');
                 if (!newImage) return;
                 await updateField(folder.folder_name, 'image', newImage);
                 folder.image = newImage;
@@ -95,7 +95,7 @@ async function getFoldersInfo() {
             folderItem.appendChild(authorP);
 
             const diffP = document.createElement('p');
-            diffP.innerHTML = '<strong>Сложность: </strong> ';
+            diffP.innerHTML = '<strong>Складність: </strong> ';
             const diffSpan = document.createElement('span');
             diffSpan.classList.add('editable');
             diffSpan.textContent = folder.difficulty;
@@ -125,11 +125,11 @@ async function addFolder(event) {
 
     const result = await response.json();
     if (response.ok) {
-        alert('Книга добавлена!');
+        alert('Книгу додано!');
         event.target.reset();
         getFoldersInfo();
     } else {
-        alert('Ошибка: ' + (result.error || 'Неизвестная ошибка'));
+        alert('Помилка: ' + (result.error || 'Невідома помилка'));
     }
 }
 
@@ -142,7 +142,7 @@ async function updateField(folder_name, field, value) {
         body: JSON.stringify(data)
     });
     const result = await response.json();
-    if (!response.ok) alert('Ошибка: ' + (result.error || 'Неизвестная ошибка'));
+    if (!response.ok) alert('Помилка: ' + (result.error || 'Невідома помилка'));
 }
 
 window.onload = getFoldersInfo;

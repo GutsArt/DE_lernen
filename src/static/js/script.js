@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
     const bookContent = document.getElementById('book-content');
     const translationBox = document.getElementById('translation-box'); // Для перевода слов
@@ -53,8 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
             return data;
         } catch (error) {
-            console.error("Ошибка при получении перевода", error);
-            return { translation: "Ошибка", article: "Ошибка" };
+            console.error("Помилка при отриманні перекладу", error);
+            return { translation: "Помилка", article: "Помилка" };
         }
     }
 
@@ -63,10 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(`/translate_sentence/${encodeURIComponent(sentence)}`);
             const data = await response.json();
-            return data.translation || "Ошибка";
+            return data.translation || "Помилка";
         } catch (error) {
-            console.error("Ошибка при получении перевода предложения", error);
-            return "Ошибка";
+            console.error("Помилка при отриманні перекладу речення", error);
+            return "Помилка";
         }
     }
 
@@ -115,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Добавляем копирование по клику
         const mainWord = mainText.querySelector('.copyable-word');
-        mainWord.title = 'Нажми, чтобы скопировать';
+        mainWord.title = 'Натисни, щоб скопіювати';
         mainWord.addEventListener('click', () => {
             navigator.clipboard.writeText(mainWord.innerText);
         });
@@ -137,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const infoText = createRow(infoTextHTML, savedWords[wordId] ? '❌' : '➕', saveButtonHandler);
 
             const articleSpan = infoText.querySelector('.copyable-word');
-            articleSpan.title = 'Нажми, чтобы скопировать';
+            articleSpan.title = 'Натисни, щоб скопіювати';
             articleSpan.addEventListener('click', () => {
                 navigator.clipboard.writeText(articleSpan.innerText);
             });
