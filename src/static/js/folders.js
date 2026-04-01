@@ -90,7 +90,17 @@ async function getFoldersInfo() {
             authorSpan.classList.add('editable');
             authorSpan.textContent = folder.author;
             authorSpan.contentEditable = "true";
-            authorSpan.addEventListener('blur', () => updateField(folder.folder_name, 'author', authorSpan.textContent));
+            
+            // Сохраняем оригинальное значение при фокусе и сравниваем при потере фокуса
+            authorSpan.addEventListener('focus', () => {authorSpan.dataset.original = authorSpan.textContent;});
+            authorSpan.addEventListener('blur', () => {
+                const newVal = authorSpan.textContent.trim();
+                if (newVal !== authorSpan.dataset.original) {
+                    updateField(folder.folder_name, 'author', newVal);
+                    folder.author = newVal; // обновляем локально
+                }
+            });
+            
             authorP.appendChild(authorSpan);
             folderItem.appendChild(authorP);
 
@@ -100,7 +110,16 @@ async function getFoldersInfo() {
             diffSpan.classList.add('editable');
             diffSpan.textContent = folder.difficulty;
             diffSpan.contentEditable = "true";
-            diffSpan.addEventListener('blur', () => updateField(folder.folder_name, 'difficulty', diffSpan.textContent));
+            
+            diffSpan.addEventListener('focus', () => {diffSpan.dataset.original = diffSpan.textContent;});
+            diffSpan.addEventListener('blur', () => {
+                const newVal = diffSpan.textContent.trim();
+                if (newVal !== diffSpan.dataset.original) {
+                    updateField(folder.folder_name, 'difficulty', newVal);
+                    folder.difficulty = newVal;
+                }   
+            });
+
             diffP.appendChild(diffSpan);
             folderItem.appendChild(diffP);
 
