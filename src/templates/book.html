@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Книга</title>
     <link rel="stylesheet" href="/static/css/style.css">
-    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"> -->
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}> -->
     <link rel="icon" href="https://img.icons8.com/?size=100&id=wNZ3FTgUzSQX&format=png&color=000000" type="image/png">
 </head>
 <body>
-   <h1>Содержимое книги</h1>
+   <h1>Зміст книги</h1>
    <h2>{{ title }}</h2>
     <div id="book-content">
-        {{ content|safe }}  <!-- Выводим преобразованный текст книги -->
+        {{ content|safe }}  <!-- Виводимо перетворений текст книги -->
     </div>
 
     <div id="translation-box" class="translation-box" style="display: none;"></div>
@@ -21,12 +21,12 @@
     <br>
 
     <div class="saved-translations">
-        <h2>Сохраненные слова:</h2>
+        <h2>Збережені слова:</h2>
         <div id="saved-words-list"></div>
     </div>
 
     <br>
-    <a href="/">Назад к списку книг</a> <!-- Ссылка на главную страницу -->
+    <a href="/">Назад до списку книг</a> <!-- Посилання на головну сторінку -->
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <!-- <script src="{{ url_for('static', filename='js/try.js') }}"></script> -->
