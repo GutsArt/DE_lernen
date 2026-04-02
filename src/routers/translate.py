@@ -25,7 +25,7 @@ def get_word_type(soup):
 
 
 def get_word_translate(soup):
-    NOT_FOUND = {"translation": "Не найдено", "article": "Не найдено"}
+    NOT_FOUND = {"translation": "Не знайдено", "article": "Не знайдено"}
     
     section = soup.find("div", {"aria-atomic": "true", "class": "section wgt c-link", "data-dz-role": "section"})
     if not section:
@@ -42,7 +42,7 @@ def get_word_translate(soup):
     if not tds:
         return NOT_FOUND
     
-    # translation = tds[0].find("a").text if tds[0].find("a") else "Не найдено"
+    # --- Translation ---
     td_first = tds[0].find("a")
     if td_first:
         td_first = td_first.text.strip()
@@ -79,7 +79,7 @@ def translate_word(word):
         word_type = get_word_type(soup)
         translation_info = get_word_translate(soup)
 
-        if translation_info["translation"] == "Не найдено":
+        if translation_info["translation"] == "Не знайдено":
             return jsonify({"translation": translate_sentence(word)})
 
         return jsonify({
@@ -95,7 +95,7 @@ def translate_word(word):
             return jsonify({"error": f"{str(e)}; {str(e2)}"}), 500
     
  
-# # Translate full sentences with Google Translate
+### Translate full sentences with Google Translate
 @translate_bp.route('/translate_sentence/<sentence>', methods=['GET'])
 def translate_sentence_route(sentence):
     try:
