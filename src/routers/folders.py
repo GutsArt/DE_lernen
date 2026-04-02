@@ -27,13 +27,13 @@ def add_folder():
         image = data.get("image", "")
 
         if not title:
-            return jsonify({"error": "Название книги обязательно"}), 400
+            return jsonify({"error": "Назву книги обов'язково вказати"}), 400
 
         folder_name = title
         folder_path = os.path.join(BASE_DIR, folder_name)
 
         if os.path.exists(folder_path):
-            return jsonify({"error": "Папка уже существует"}), 400
+            return jsonify({"error": "Папка вже існує"}), 400
 
         # создаём папку и пустой text.txt
         os.makedirs(folder_path)
@@ -51,7 +51,7 @@ def add_folder():
         })
         save_index(index)
 
-        return jsonify({"message": "Книга добавлена"}), 200
+        return jsonify({"message": "Книгу додано"}), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -65,7 +65,7 @@ def edit_folder(folder_name):
         index = load_index()
         book = next((b for b in index if b["folder_name"] == folder_name), None)
         if not book:
-            return jsonify({"error": "Книга не найдена"}), 404
+            return jsonify({"error": "Книга не знайдена"}), 404
 
         old_folder_path = os.path.join(BASE_DIR, folder_name)
         new_title = data.get("title", book["title"])
@@ -74,7 +74,7 @@ def edit_folder(folder_name):
         # Проверяем, нужно ли переименовать папку
         if new_title != folder_name:
             if os.path.exists(new_folder_path):
-                return jsonify({"error": "Папка с новым названием уже существует"}), 400
+                return jsonify({"error": "Папка з новою назвою вже існує"}), 400
             os.rename(old_folder_path, new_folder_path)
             book["folder_name"] = new_title
             book["title"] = new_title
@@ -85,7 +85,7 @@ def edit_folder(folder_name):
         book["image"] = data.get("image", book.get("image", ""))
 
         save_index(index)
-        return jsonify({"message": "Данные обновлены"}), 200
+        return jsonify({"message": "Дані оновлено"}), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -104,7 +104,7 @@ def delete_folder(folder_name):
         index = [f for f in index if f["folder_name"] != folder_name]
         save_index(index)
 
-        return jsonify({"message": "Книга удалена"}), 200
+        return jsonify({"message": "Книгу видалено"}), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
