@@ -68,8 +68,8 @@ def wrap_content(content: str) -> str:
 @books_bp.route("/book/<folder_name>")
 def book_page(folder_name):
     try:
-        folder_path = os.path.join(BASE_DIR, folder_name)
-        if not os.path.commonpath([BASE_DIR, folder_path]) == BASE_DIR:
+        folder_path = os.path.realpath(os.path.join(BASE_DIR, folder_name))
+        if not folder_path.startswith(os.path.realpath(BASE_DIR)):
             return jsonify({"error": "Недопустимый путь"}), 400
 
         file_path = os.path.join(folder_path, "text.txt")
