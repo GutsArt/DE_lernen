@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 import requests
 from bs4 import BeautifulSoup
 # from utils.parsers import get_word_type, get_word_translate
@@ -96,8 +96,12 @@ def translate_word(word):
     
  
 ### Translate full sentences with Google Translate
-@translate_bp.route('/translate_sentence/<sentence>', methods=['GET'])
-def translate_sentence_route(sentence):
+@translate_bp.route('/translate_sentence', methods=['POST'])
+def translate_sentence_route():
+    data = request.get_json()
+    sentence = (data or {}).get('sentence', '').strip()
+    if not sentence:
+        return jsonify({"error": "No sentence provided"}), 400
     try:
         return jsonify({"translation": translate_sentence(sentence)})
     except Exception as e:

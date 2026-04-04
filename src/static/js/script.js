@@ -45,30 +45,68 @@ document.addEventListener('DOMContentLoaded', () => {
         showSentenceTranslation(element, sentence, translation);
     }
 
+
+
+    // TRANSLATION
     // Функция для перевода слова
     async function getWordTranslation(word) {
         try {
-            const response = await fetch(`/translate_word/${word}`);
+            const response = await fetch(`/translate_word/${encodeURIComponent(word)}`);
+
+            // ✅ Проверяем HTTP-статус явно
+            if (!response.ok) {
+                console.warn(`Translate error: ${response.status}`);
+                return { translation: "Не знайдено" };
+            }
+
+            const ct = response.headers.get('Content-Type') || '';
+            if (!ct.includes('application/json')) {
+                return { translation: "Помилка сервера" };
+            }
+
             const data = await response.json();
+
+            // ✅ Если сервер вернул { error: "..." } — обрабатываем явно
+            if (data.error) {
+                console.warn("Translation API error:", data.error);
+                return { translation: "Не знайдено" };
+            }
+
             return data;
         } catch (error) {
             console.error("Помилка при отриманні перекладу", error);
-            return { translation: "Помилка", article: "Помилка" };
+            // ✅ article не возвращаем — showTranslation корректно
+            // обрабатывает отсутствие article (однострочный режим)
+            return { translation: "Помилка з'єднання" };
         }
     }
 
     // Функция для перевода предложения
     async function getSentenceTranslation(sentence) {
+        // ✅ Пустую строку не отправляем — зря грузим сервер
+        if (!sentence.trim()) return "";
+
         try {
-            const response = await fetch(`/translate_sentence/${encodeURIComponent(sentence)}`);
+            // ✅ POST — тело запроса не ограничено длиной URL
+            const response = await fetch('/translate_sentence', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ sentence })
+            });
+
+            if (!response.ok) {
+                console.warn(`Sentence translate error: ${response.status}`);
+                return "Не вдалося перекласти";
+            }
+
             const data = await response.json();
-            return data.translation || "Помилка";
+            return data.translation || "Не вдалося перекласти";
+
         } catch (error) {
             console.error("Помилка при отриманні перекладу речення", error);
-            return "Помилка";
+            return "Помилка з'єднання";
         }
     }
-
 
 
 
