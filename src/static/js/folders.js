@@ -1,9 +1,24 @@
+async function fetchJSON(url, options = {}) {
+    const response = await fetch(url, options);
+    const ct = response.headers.get('Content-Type') || '';
+    if (!ct.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(
+            `Сервер повернув не JSON (${response.status}): ${text.slice(0, 120)}`
+        );
+    }
+
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.error || `HTTP ${response.status}`);
+    }
+
+    return data;
+}
+
 async function getFoldersInfo() {
     try {
-        const response = await fetch('/folders-info');
-        if (!response.ok) throw new Error('Не вдалося завантажити інформацію про папки.');
-
-        const folders = await response.json();
+        const folders = await fetchJSON('/folders-info');
         const folderList = document.getElementById('folder-list');
         folderList.innerHTML = '';
 
@@ -17,13 +32,12 @@ async function getFoldersInfo() {
             deleteBtn.title = "Видалити книгу";
             deleteBtn.onclick = async () => {
                 if (!confirm(`Ви впевнені, що хочете видалити книгу "${folder.title}"?`)) return;
-                const resp = await fetch(`/delete-folder/${folder.folder_name}`, { method: 'DELETE' });
-                const result = await resp.json();
-                if (resp.ok) {
+                try {
+                    await fetchJSON(`/delete-folder/${folder.folder_name}`, { method: 'DELETE' });
                     alert('Книгу видалено!');
                     folderItem.remove();
-                } else {
-                    alert('Помилка: ' + (result.error || 'Невідома помилка'));
+                } catch (error) {
+                    alert('Помилка: ' + error.message);
                 }
             };
             folderItem.appendChild(deleteBtn);
@@ -136,32 +150,33 @@ async function addFolder(event) {
     const data = Object.fromEntries(formData.entries());
     data.folder_name = data.title;
 
-    const response = await fetch('/add-folder', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-    });
-
-    const result = await response.json();
-    if (response.ok) {
+    try {
+        await fetchJSON('/add-folder', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
         alert('Книгу додано!');
         event.target.reset();
         getFoldersInfo();
-    } else {
-        alert('Помилка: ' + (result.error || 'Невідома помилка'));
+    } catch (error) {
+        alert('Помилка: ' + error.message);
     }
 }
 
 async function updateField(folder_name, field, value) {
     const data = {};
     data[field] = value;
-    const response = await fetch(`/edit-folder/${folder_name}`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-    });
-    const result = await response.json();
-    if (!response.ok) alert('Помилка: ' + (result.error || 'Невідома помилка'));
+
+    try {
+        await fetchJSON(`/edit-folder/${folder_name}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+    } catch (error) {
+        alert('Помилка: ' + error.message);
+    }
 }
 
 window.onload = getFoldersInfo;
