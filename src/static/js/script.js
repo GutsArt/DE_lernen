@@ -1,14 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Название книги для привязки слов
+    const BOOK_NAME = document.querySelector('h2').textContent.trim();
+
     const bookContent = document.getElementById('book-content');
     const translationBox = document.getElementById('translation-box'); // Для перевода слов
     const sentenceTranslationBox = document.getElementById('sentence-translation-box'); // Для перевода предложений
     const savedWordsList = document.getElementById('saved-words-list');
 
     let activeElement = null; // Отслеживание активного слова/предложения
-    let savedWords = JSON.parse(localStorage.getItem('savedWords')) || {}; // Загружаем сохраненные слова
 
-
-    highlightSavedWords();
 
     // Обработчик клика по тексту книги
     bookContent.addEventListener('click', async function(event) {
@@ -132,10 +132,12 @@ document.addEventListener('DOMContentLoaded', () => {
             textContainer.innerHTML = labelHTML;
             row.appendChild(textContainer);
 
-            const button = document.createElement('button');
-            button.textContent = buttonIcon;
-            button.addEventListener('click', onButtonClick);
-            row.appendChild(button);
+            if (buttonIcon) {
+                const button = document.createElement('button');
+                button.textContent = buttonIcon;
+                button.addEventListener('click', onButtonClick);
+                row.appendChild(button);
+            }
 
             translationBox.appendChild(row);
             return textContainer;
@@ -158,20 +160,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // === 4. Вторая строка (если есть артикль/тип) + ➕/❌ ===
+        let words = loadWords();
         const saveButtonHandler = () => {
-            if (savedWords[wordId]) {
+            if (words[wordId]) {
                 removeWord(wordId);
                 element.classList.remove('save-word');
             } else {
-                saveWord(wordId, translationInfo.translation);
+                saveWord(wordId, translationInfo.translation, BOOK_NAME);
                 element.classList.add('save-word');
             }
-            showTranslation(element, wordId, translationInfo); // Перерисовать состояние кнопки
+            words = loadWords(); // Перезагрузить после изменения
+            highlightSavedWords(); // Обновить подсветку всех слов
+            updateSavedWordsList(); // Обновить список сохраненных слов
+            showTranslation(element, wordId, translationInfo);
         };
 
         if (translationInfo.article) {
             const infoTextHTML = `<i>${translationInfo.type}</i>: <span class="copyable-word">${translationInfo.article}</span>`;
-            const infoText = createRow(infoTextHTML, savedWords[wordId] ? '❌' : '➕', saveButtonHandler);
+            const infoText = createRow(infoTextHTML, words[wordId] ? '❌' : '➕', saveButtonHandler);
 
             const articleSpan = infoText.querySelector('.copyable-word');
             articleSpan.title = 'Натисни, щоб скопіювати';
@@ -181,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             // Если нет артикля — добавить кнопку сохранения к первой строке
             const saveButton = document.createElement('button');
-            saveButton.textContent = savedWords[wordId] ? '❌' : '➕';
+            saveButton.textContent = words[wordId] ? '❌' : '➕';
             saveButton.addEventListener('click', saveButtonHandler);
             mainText.parentElement.appendChild(saveButton);
         }
@@ -241,64 +247,130 @@ document.addEventListener('DOMContentLoaded', () => {
         sentenceTranslationBox.appendChild(speakButton);    
     }
 
-    
+    // Структура:
+    // savedWords → { слово: { перевод, книга, дата } }
 
+    const STORAGE_KEY = 'savedWords';
 
-
-    function saveWord(wordId, translation) {
-        if (!savedWords[wordId]) {
-            savedWords[wordId] = translation;
-            localStorage.setItem('savedWords', JSON.stringify(savedWords));
-            updateSavedWordsList();
-            highlightSavedWords();
-        }
+    function loadWords() {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
     }
-    
-    function removeWord(wordId) {
-        if (savedWords[wordId]) {
-            delete savedWords[wordId];  // Удаляем из объекта
-            localStorage.setItem('savedWords', JSON.stringify(savedWords)); // Обновляем localStorage
-            updateSavedWordsList(); // Обновляем список
-            highlightSavedWords(); // Убираем подсветку
+
+    function saveWord(word, translation, bookName) {
+      const words = loadWords();
+
+      // Если слово уже есть — не перезаписываем, добавляем книгу
+      if (words[word]) {
+        if (!words[word].books.includes(bookName)) {
+          words[word].books.push(bookName);
         }
+      } else {
+        words[word] = {
+          translation,
+          books: [bookName],        // в каких книгах встречалось
+          addedAt: Date.now()       // когда добавлено
+        };
+      }
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(words));
     }
-    
+
+    function removeWord(word) {
+      const words = loadWords();
+      delete words[word];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(words));
+    }
+
+    // Получить все слова из конкретной книги:
+    function getWordsForBook(bookName) {
+      const words = loadWords();
+      return Object.entries(words)
+        .filter(([_, v]) => v.books.includes(bookName));
+    }
+
+    // Получить весь словарь (для отдельной страницы):
+    function getAllWords() {
+      return Object.entries(loadWords());
+    }
+
     function updateSavedWordsList() {
-        savedWordsList.innerHTML = ''; // Очищаем список
-    
-        for (const wordId in savedWords) {
-            const savedWord = document.createElement('div');
-            savedWord.classList.add('saved-word');
-            savedWord.innerText = `${wordId}: ${savedWords[wordId]}`;
-    
-            // Добавляем кнопку удаления
-            const deleteButton = document.createElement('button');
-            deleteButton.innerText = "❌";
-            deleteButton.style.marginLeft = "10px";
-            deleteButton.style.color = "black";
-            deleteButton.onclick = function() {
-                removeWord(wordId);
-            };
-    
-            savedWord.appendChild(deleteButton);
-            savedWordsList.appendChild(savedWord);
-        }
-    }
-    
-    function highlightSavedWords() {
-        document.querySelectorAll('.word').forEach(wordElement => {
-            const wordId = wordElement.id || wordElement.innerText.trim();
-            if (savedWords[wordId]) {
-                wordElement.classList.add('save-word');
-            } else {
-                wordElement.classList.remove('save-word');
-            }
+      savedWordsList.innerHTML = '';
+      const bookWords = getWordsForBook(BOOK_NAME);
+
+      if (!bookWords.length) {
+        savedWordsList.innerHTML = '<em style="color:#666">Немає збережених слів</em>';
+        return;
+      }
+
+      bookWords.forEach(([word, data]) => {
+        const row = document.createElement('div');
+        row.classList.add('saved-word');
+        row.dataset.word = word;
+
+        // Слово — редактируемое
+        const wordSpan = document.createElement('span');
+        wordSpan.classList.add('editable-word');
+        wordSpan.contentEditable = 'true';
+        wordSpan.textContent = word;
+        wordSpan.addEventListener('focus', () => wordSpan.dataset.original = wordSpan.textContent);
+        wordSpan.addEventListener('blur', () => {
+          const newWord = wordSpan.textContent.trim();
+          if (!newWord) { wordSpan.textContent = wordSpan.dataset.original; return; }
+          if (newWord === wordSpan.dataset.original) return;
+          if (!renameWord(wordSpan.dataset.original, newWord)) {
+            wordSpan.textContent = wordSpan.dataset.original;
+            alert('Слово вже існує');
+          } else {
+            row.dataset.word = newWord;
+            highlightSavedWords();
+            updateSavedWordsList();
+          }
         });
+        wordSpan.addEventListener('keydown', e => {
+          if (e.key === 'Enter') { e.preventDefault(); wordSpan.blur(); }
+          if (e.key === 'Escape') { wordSpan.textContent = wordSpan.dataset.original; wordSpan.blur(); }
+        });
+
+        // Перевод — редактируемый
+        const sep = document.createElement('span');
+        sep.textContent = ': ';
+
+        const transSpan = document.createElement('span');
+        transSpan.classList.add('editable-translation');
+        transSpan.contentEditable = 'true';
+        transSpan.textContent = data.translation;
+        transSpan.addEventListener('focus', () => transSpan.dataset.original = transSpan.textContent);
+        transSpan.addEventListener('blur', () => {
+          const newTrans = transSpan.textContent.trim();
+          if (!newTrans) { transSpan.textContent = transSpan.dataset.original; return; }
+          if (newTrans !== transSpan.dataset.original) editTranslation(row.dataset.word, newTrans);
+        });
+        transSpan.addEventListener('keydown', e => {
+          if (e.key === 'Enter') { e.preventDefault(); transSpan.blur(); }
+          if (e.key === 'Escape') { transSpan.textContent = transSpan.dataset.original; transSpan.blur(); }
+        });
+
+        // Кнопка удаления
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = '❌';
+        deleteBtn.onclick = () => { removeWord(row.dataset.word); updateSavedWordsList(); highlightSavedWords(); };
+
+        row.append(wordSpan, sep, transSpan, deleteBtn);
+        savedWordsList.appendChild(row);
+      });
     }
-    
-    // Загружаем сохранённые слова при старте
+
+    function highlightSavedWords() {
+      const words = loadWords();
+      document.querySelectorAll('.word').forEach(el => {
+        el.classList.toggle('save-word', !!words[el.id || el.innerText.trim()]);
+      });
+    }
+
+    // Загружаем подсветку и список при старте
+    highlightSavedWords();
     updateSavedWordsList();
-    
+
 });
 
 
