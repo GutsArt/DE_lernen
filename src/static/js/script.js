@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Название книги для привязки слов
-    const BOOK_NAME = document.querySelector('h2').textContent.trim();
-
     const bookContent = document.getElementById('book-content');
+    // Название книги для привязки слов
+    const BOOK_ID = bookContent.dataset.folder;
+
     const translationBox = document.getElementById('translation-box'); // Для перевода слов
     const sentenceTranslationBox = document.getElementById('sentence-translation-box'); // Для перевода предложений
     const savedWordsList = document.getElementById('saved-words-list');
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 removeWord(wordId);
                 element.classList.remove('save-word');
             } else {
-                saveWord(wordId, translationInfo.translation, BOOK_NAME);
+                saveWord(wordId, translationInfo.translation, BOOK_ID);
                 element.classList.add('save-word');
             }
             words = loadWords(); // Перезагрузить после изменения
@@ -295,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateSavedWordsList() {
       savedWordsList.innerHTML = '';
-      const bookWords = getWordsForBook(BOOK_NAME);
+      const bookWords = getWordsForBook(BOOK_ID);
 
       if (!bookWords.length) {
         savedWordsList.innerHTML = '<em style="color:#666">Немає збережених слів</em>';

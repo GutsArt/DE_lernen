@@ -38,6 +38,21 @@ function renameWord(oldWord, newWord) {
   _save(words);
   return true;
 }
+function renameBookInStorage(oldName, newName) {
+  const words = loadWords();
+  let changed = false;
+
+  Object.values(words).forEach(data => {
+    if (!Array.isArray(data.books)) return;
+    const updated = data.books.map(book => (book === oldName ? newName : book));
+    if (updated.some((book, index) => book !== data.books[index])) {
+      data.books = updated;
+      changed = true;
+    }
+  });
+
+  if (changed) _save(words);
+}
 function getWordsForBook(bookName) {
   return Object.entries(loadWords())
     .filter(([_, v]) => v.books.includes(bookName));

@@ -79,12 +79,22 @@ def book_page(folder_name):
 
         content = load_book_text(file_path)
         if not content.strip():
-            return render_template('book.html', title=folder_name, content="<p><em>Файл пуст.</em></p>")
+            return render_template(
+                'book.html',
+                title=folder_name,
+                content="<p><em>Файл пуст.</em></p>",
+                folder_name=folder_name
+            )
 
 
         paragraphs_html = wrap_content(content)
             
         # Отображаем в HTML
-        return render_template('book.html', title=folder_name, content=paragraphs_html)
+        return render_template(
+            'book.html',
+            title=folder_name,
+            content=paragraphs_html,
+            folder_name=folder_name
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
