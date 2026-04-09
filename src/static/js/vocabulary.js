@@ -57,3 +57,7 @@ function getWordsForBook(bookName) {
   return Object.entries(loadWords())
     .filter(([_, v]) => v.books.includes(bookName));
 }
+function getAllWords() {
+  return Object.entries(loadWords());
+  // → [["Leder", {translation, books, addedAt}], ...]
+}

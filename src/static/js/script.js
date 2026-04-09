@@ -9,8 +9,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let activeElement = null; // Отслеживание активного слова/предложения
 
+    // В начале DOMContentLoaded — текущий активный таб
+    let activeTab = 'book'; // 'book' | 'all'
 
-    // Обработчик клика по тексту книги
+    // Вешаем клики на табы
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn')
+          .forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeTab = btn.dataset.tab;
+        updateSavedWordsList();
+      });
+    });
     bookContent.addEventListener('click', async function(event) {
         const clickedElement = event.target;
 
@@ -288,31 +299,40 @@ document.addEventListener('DOMContentLoaded', () => {
         .filter(([_, v]) => v.books.includes(bookName));
     }
 
-    // Получить весь словарь (для отдельной страницы):
-    function getAllWords() {
-      return Object.entries(loadWords());
-    }
-
     function updateSavedWordsList() {
       savedWordsList.innerHTML = '';
-      const bookWords = getWordsForBook(BOOK_ID);
 
-      if (!bookWords.length) {
-        savedWordsList.innerHTML = '<em style="color:#666">Немає збережених слів</em>';
+      // ✅ Выбираем данные в зависимости от таба
+      const words = activeTab === 'book'
+        ? getWordsForBook(BOOK_ID)
+        : getAllWords();
+
+      if (!words.length) {
+        savedWordsList.innerHTML =
+          '<em style="color:#666">Немає збережених слів</em>';
         return;
       }
 
-      bookWords.forEach(([word, data]) => {
+      words.forEach(([word, data]) => {
         const row = document.createElement('div');
         row.classList.add('saved-word');
         row.dataset.word = word;
+
+        // ✅ В табе "всі книги" — показываем из каких книг слово
+        if (activeTab === 'all' && data.books?.length) {
+          const bookTag = document.createElement('span');
+          bookTag.classList.add('book-tag');
+          bookTag.textContent = data.books.join(', ');
+          row.appendChild(bookTag);
+        }
 
         // Слово — редактируемое
         const wordSpan = document.createElement('span');
         wordSpan.classList.add('editable-word');
         wordSpan.contentEditable = 'true';
         wordSpan.textContent = word;
-        wordSpan.addEventListener('focus', () => wordSpan.dataset.original = wordSpan.textContent);
+        wordSpan.addEventListener('focus', () =>
+          wordSpan.dataset.original = wordSpan.textContent);
         wordSpan.addEventListener('blur', () => {
           const newWord = wordSpan.textContent.trim();
           if (!newWord) { wordSpan.textContent = wordSpan.dataset.original; return; }
@@ -323,37 +343,47 @@ document.addEventListener('DOMContentLoaded', () => {
           } else {
             row.dataset.word = newWord;
             highlightSavedWords();
-            updateSavedWordsList();
           }
         });
         wordSpan.addEventListener('keydown', e => {
           if (e.key === 'Enter') { e.preventDefault(); wordSpan.blur(); }
-          if (e.key === 'Escape') { wordSpan.textContent = wordSpan.dataset.original; wordSpan.blur(); }
+          if (e.key === 'Escape') {
+            wordSpan.textContent = wordSpan.dataset.original; wordSpan.blur();
+          }
         });
 
-        // Перевод — редактируемый
         const sep = document.createElement('span');
         sep.textContent = ': ';
+        sep.style.color = '#555';
 
+        // Перевод — редактируемый
         const transSpan = document.createElement('span');
         transSpan.classList.add('editable-translation');
         transSpan.contentEditable = 'true';
         transSpan.textContent = data.translation;
-        transSpan.addEventListener('focus', () => transSpan.dataset.original = transSpan.textContent);
+        transSpan.addEventListener('focus', () =>
+          transSpan.dataset.original = transSpan.textContent);
         transSpan.addEventListener('blur', () => {
           const newTrans = transSpan.textContent.trim();
           if (!newTrans) { transSpan.textContent = transSpan.dataset.original; return; }
-          if (newTrans !== transSpan.dataset.original) editTranslation(row.dataset.word, newTrans);
+          if (newTrans !== transSpan.dataset.original)
+            editTranslation(row.dataset.word, newTrans);
         });
         transSpan.addEventListener('keydown', e => {
           if (e.key === 'Enter') { e.preventDefault(); transSpan.blur(); }
-          if (e.key === 'Escape') { transSpan.textContent = transSpan.dataset.original; transSpan.blur(); }
+          if (e.key === 'Escape') {
+            transSpan.textContent = transSpan.dataset.original; transSpan.blur();
+          }
         });
 
         // Кнопка удаления
         const deleteBtn = document.createElement('button');
         deleteBtn.textContent = '❌';
-        deleteBtn.onclick = () => { removeWord(row.dataset.word); updateSavedWordsList(); highlightSavedWords(); };
+        deleteBtn.onclick = () => {
+          removeWord(row.dataset.word);
+          row.remove();
+          highlightSavedWords();
+        };
 
         row.append(wordSpan, sep, transSpan, deleteBtn);
         savedWordsList.appendChild(row);
