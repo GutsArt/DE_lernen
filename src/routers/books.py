@@ -1,5 +1,5 @@
 import os
-from flask import Blueprint, render_template, jsonify
+from flask import Blueprint, render_template, jsonify, request, Response
 from config import BASE_DIR
 
 books_bp = Blueprint("books_bp", __name__)
@@ -96,5 +96,49 @@ def book_page(folder_name):
             content=paragraphs_html,
             folder_name=folder_name
         )
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@books_bp.route("/book/<folder_name>/raw", methods=["GET"])
+def book_raw(folder_name):
+    try:
+        folder_path = os.path.realpath(os.path.join(BASE_DIR, folder_name))
+        if not folder_path.startswith(os.path.realpath(BASE_DIR)):
+            return jsonify({"error": "Недопустимый путь"}), 400
+
+        file_path = os.path.join(folder_path, "text.txt")
+        if not os.path.exists(file_path):
+            return jsonify({"error": "File not found"}), 404
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        return Response(content, mimetype="text/plain; charset=utf-8")
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@books_bp.route("/book/<folder_name>/save", methods=["POST"])
+def book_save(folder_name):
+    try:
+        folder_path = os.path.realpath(os.path.join(BASE_DIR, folder_name))
+        if not folder_path.startswith(os.path.realpath(BASE_DIR)):
+            return jsonify({"error": "Недопустимый путь"}), 400
+
+        file_path = os.path.join(folder_path, "text.txt")
+        if not os.path.exists(file_path):
+            return jsonify({"error": "File not found"}), 404
+
+        data = request.get_json(silent=True) or {}
+        raw_text = data.get("text")
+        if raw_text is None:
+            return jsonify({"error": "No text provided"}), 400
+
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(raw_text)
+
+        load_book_text_cached.cache_clear()
+        return jsonify({"status": "ok"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500

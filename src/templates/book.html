@@ -15,6 +15,22 @@
         {{ content|safe }}  <!-- Виводимо перетворений текст книги -->
     </div>
 
+    <div class="book-controls">
+        <button id="edit-book-btn" type="button">Редагувати текст</button>
+    </div>
+
+    <div id="editor-container" class="editor-container" style="display: none;">
+        <div class="editor-header">
+            <span>Редактор книги</span>
+            <button id="close-editor-btn" type="button">Закрити</button>
+        </div>
+        <textarea id="book-editor-text" placeholder="Тут буде сирий текст книги..."></textarea>
+        <div class="editor-actions">
+            <button id="save-book-btn" type="button">Зберегти</button>
+            <button id="cancel-book-btn" type="button">Скасувати</button>
+        </div>
+    </div>
+
     <div id="translation-box" class="translation-box" style="display: none;"></div>
     <div id="sentence-translation-box" class="sentence-translation-box" style="display: none;"></div>
 

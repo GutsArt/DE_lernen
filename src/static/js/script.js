@@ -401,6 +401,81 @@ document.addEventListener('DOMContentLoaded', () => {
     highlightSavedWords();
     updateSavedWordsList();
 
+    const editorContainer = document.getElementById('editor-container');
+    const editorTextarea = document.getElementById('book-editor-text');
+    const editBookBtn = document.getElementById('edit-book-btn');
+    const saveBookBtn = document.getElementById('save-book-btn');
+    const closeEditorBtn = document.getElementById('close-editor-btn');
+    const cancelBookBtn = document.getElementById('cancel-book-btn');
+
+    if (editBookBtn) {
+      editBookBtn.addEventListener('click', openEditor);
+    }
+    if (saveBookBtn) {
+      saveBookBtn.addEventListener('click', saveText);
+    }
+    if (closeEditorBtn) {
+      closeEditorBtn.addEventListener('click', closeEditor);
+    }
+    if (cancelBookBtn) {
+      cancelBookBtn.addEventListener('click', closeEditor);
+    }
+
+    async function openEditor() {
+      if (!editorContainer || !editorTextarea) return;
+      const folder = bookContent.dataset.folder;
+      try {
+        const response = await fetch(`/book/${encodeURIComponent(folder)}/raw`);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        editorTextarea.value = await response.text();
+        editorContainer.style.display = 'block';
+        editorTextarea.focus();
+      } catch (error) {
+        console.error(error);
+        alert('Не вдалося завантажити текст книги.');
+      }
+    }
+
+    async function saveText() {
+      if (!editorTextarea) return;
+      const folder = bookContent.dataset.folder;
+      const payload = { text: editorTextarea.value };
+      try {
+        const response = await fetch(`/book/${encodeURIComponent(folder)}/save`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (data.status !== 'ok') {
+          throw new Error(data.error || 'Невідома помилка');
+        }
+
+        closeEditor();
+        window.location.reload();
+      } catch (error) {
+        console.error(error);
+        alert('Не вдалося зберегти текст: ' + error.message);
+      }
+    }
+
+    function closeEditor() {
+      if (!editorContainer) return;
+      editorContainer.style.display = 'none';
+    }
+
+    window.openEditor = openEditor;
+    window.saveText = saveText;
+    window.closeEditor = closeEditor;
+
 });
 
 
