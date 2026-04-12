@@ -138,7 +138,7 @@ a:hover {
 
 #book-editor-text {
     width: 100%;
-    min-height: 450px;
+    min-height: 425px;
     background: rgba(5, 8, 14, 0.95);
     color: #f1f9ff;
     border: 1px solid rgba(0, 255, 255, 0.15);
@@ -346,6 +346,10 @@ a:hover {
     transform: scale(1.05);
 }
 
+.saved-word button {
+    margin-left: 0.5rem;
+}
+
 /* ====== Кнопки ====== */
 button {
     background-color: rgba(0, 255, 255, 0.15);
@@ -425,4 +429,80 @@ button.delete:hover {
   color: #555;
   margin-bottom: 2px;
   letter-spacing: 0.03em;
+}
+
+/* ====== Мобильные устройства ====== */
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+    }
+
+    p {
+        padding: 0.1em 0.8em;
+    }
+
+    h1 {
+        font-size: 1.6em;
+        margin-bottom: 1rem;
+    }
+
+    h2 {
+        font-size: 1.4em;
+    }
+
+    a {
+        font-size: 1.1em;
+    }
+
+    img {
+        max-width: 100%;
+    }
+}
+
+/* ====== Очень маленькие экраны (телефоны) ====== */
+@media (max-width: 480px) {
+    body {
+        padding: 0.5rem;
+        font-size: 16px;
+    }
+
+    p {
+        padding: 0.1em 0.5em;
+        font-size: 1.15em;
+    }
+
+    h1 {
+        font-size: 1.6em;
+        margin-bottom: 0.8rem;
+        padding-bottom: 0.3rem;
+    }
+
+    h2 {
+        font-size: 1.35em;
+        margin-bottom: 0.8rem;
+    }
+
+    a {
+        font-size: 1.1em;
+    }
+
+    button {
+        padding: 4px 8px;
+        font-size: 1em;
+    }
+
+    .saved-translations {
+        padding: 0.8rem;
+        margin-top: 1rem;
+    }
+
+    .tabs {
+        gap: 4px;
+        margin-bottom: 10px;
+    }
+
+    .tab-btn {
+        padding: 4px 12px;
+        font-size: 1.25rem;
+    }
 }
