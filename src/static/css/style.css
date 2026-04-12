@@ -400,9 +400,9 @@ button.delete:hover {
 }
 
 .tab-btn {
-  padding: 6px 16px;
+  padding: 4px 12px;
   border-radius: 20px;
-  font-size: 13px;
+  font-size: 1rem;
   background: transparent;
   border: 1px solid rgba(0,255,255,0.25);
   color: #888;
