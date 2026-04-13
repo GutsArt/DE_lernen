@@ -54,6 +54,31 @@
     <br>
     <a href="/">Назад до списку книг</a> <!-- Посилання на головну сторінку -->
 
+    <!-- Кнопка настроек (шестеренка) -->
+    <button id="settings-toggle" class="settings-toggle" title="Параметри">⚙️</button>
+
+    <!-- Панель настроек -->
+    <div id="settings-panel" class="settings-panel">
+        <div class="settings-header">
+            <h3>Параметри</h3>
+            <button id="settings-close" class="settings-close">✕</button>
+        </div>
+        
+        <div class="settings-content">
+            <!-- Управление размером шрифта -->
+            <div class="settings-group">
+                <label for="font-size-slider">Розмір шрифту:</label>
+                <div class="settings-control">
+                    <input type="range" id="font-size-slider" min="12" max="24" value="18">
+                    <span id="font-size-display">18px</span>
+                </div>
+            </div>
+            
+            <!-- Место для будущих функций -->
+            <!-- Например: темы, расстояние между строками, шрифты и т.д. -->
+        </div>
+    </div>
+
     <script src="{{ url_for('static', filename='js/vocabulary.js') }}"></script>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     <!-- <script src="{{ url_for('static', filename='js/try.js') }}"></script> -->

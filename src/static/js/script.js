@@ -476,6 +476,50 @@ document.addEventListener('DOMContentLoaded', () => {
     window.saveText = saveText;
     window.closeEditor = closeEditor;
 
+    // === Управление панелью настроек ===
+    const settingsToggle = document.getElementById('settings-toggle');
+    const settingsPanel = document.getElementById('settings-panel');
+    const settingsClose = document.getElementById('settings-close');
+    
+    if (settingsToggle && settingsPanel) {
+        settingsToggle.addEventListener('click', () => {
+            settingsPanel.classList.toggle('open');
+        });
+        
+        settingsClose.addEventListener('click', () => {
+            settingsPanel.classList.remove('open');
+        });
+        
+        // Закрыть панель при клике вне её
+        document.addEventListener('click', (e) => {
+            if (!settingsPanel.contains(e.target) && !settingsToggle.contains(e.target)) {
+                settingsPanel.classList.remove('open');
+            }
+        });
+    }
+
+    // === Управление размером шрифта ===
+    const slider = document.getElementById('font-size-slider');
+    const fontSizeDisplay = document.getElementById('font-size-display');
+    
+    if (slider) {
+        // При изменении слайдера
+        slider.addEventListener('input', (e) => {
+            const fontSize = e.target.value;
+            bookContent.style.fontSize = fontSize + 'px';
+            if (fontSizeDisplay) {
+                fontSizeDisplay.textContent = fontSize + 'px';
+            }
+            localStorage.setItem('fontSize', fontSize);
+        });
+
+        // При загрузке страницы восстанавливаем размер
+        const savedFontSize = localStorage.getItem('fontSize') || '18';
+        slider.value = savedFontSize;
+        bookContent.style.fontSize = savedFontSize + 'px';
+        if (fontSizeDisplay) fontSizeDisplay.textContent = savedFontSize + 'px';
+    }
+
 });
 
 

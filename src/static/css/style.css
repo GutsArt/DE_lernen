@@ -95,6 +95,15 @@ a:hover {
 
 .book-controls {
     margin: 1.2rem 0 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    background-color: #0e0e0e;
+    padding: 1rem 0;
+    z-index: 100;
 }
 
 #edit-book-btn {
@@ -110,6 +119,196 @@ a:hover {
 #edit-book-btn:hover {
     background-color: rgba(0, 255, 255, 0.25);
     color: #ffffff;
+}
+
+/* Управление размером шрифта */
+.font-size-control {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 0.95em;
+    white-space: nowrap;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: rgba(15, 15, 20, 0.95);
+    border: 1px solid rgba(0, 255, 255, 0.25);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    z-index: 999;
+    box-shadow: 0 4px 12px rgba(0, 255, 255, 0.1);
+}
+
+#font-size-slider {
+    width: 150px;
+    cursor: pointer;
+}
+
+#font-size-display {
+    min-width: 55px;
+    color: #00ffae;
+    font-weight: 600;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* === Кнопка настроек (шестеренка) === */
+.settings-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: rgba(0, 255, 255, 0.15);
+    border: 2px solid rgba(0, 255, 255, 0.4);
+    color: #00ffff;
+    font-size: 1.8em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 255, 255, 0.1);
+}
+
+.settings-toggle:hover {
+    background-color: rgba(0, 255, 255, 0.25);
+    transform: rotate(90deg) scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 255, 255, 0.2);
+}
+
+.settings-toggle:active {
+    transform: rotate(90deg) scale(0.95);
+}
+
+/* === Панель настроек === */
+.settings-panel {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    width: 320px;
+    max-height: 80vh;
+    background-color: rgba(15, 15, 20, 0.98);
+    border: 2px solid rgba(0, 255, 255, 0.3);
+    border-radius: 12px;
+    padding: 1.2rem;
+    z-index: 1000;
+    box-shadow: 0 8px 32px rgba(0, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    display: none;
+    flex-direction: column;
+    gap: 1rem;
+    animation: slideUp 0.3s ease;
+    overflow-y: auto;
+}
+
+.settings-panel.open {
+    display: flex;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+    padding-bottom: 0.8rem;
+}
+
+.settings-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: #00ffff;
+}
+
+.settings-close {
+    background: none;
+    border: none;
+    color: #00ffff;
+    font-size: 1.5em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    min-width: auto;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.settings-close:hover {
+    color: #fff;
+    transform: rotate(90deg);
+}
+
+.settings-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.settings-group label {
+    color: #b2f7ff;
+    font-size: 0.95em;
+    font-weight: 500;
+}
+
+.settings-control {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.settings-control input[type="range"] {
+    flex: 1;
+    cursor: pointer;
+}
+
+.settings-control span {
+    min-width: 50px;
+    color: #00ffae;
+    font-weight: 600;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* === Мобильные адаптации === */
+@media (max-width: 480px) {
+    .settings-panel {
+        width: 280px;
+        bottom: 80px;
+        right: 10px;
+        left: auto;
+        padding: 1rem;
+    }
+
+    .settings-toggle {
+        bottom: 15px;
+        right: 15px;
+        width: 45px;
+        height: 45px;
+        font-size: 1.5em;
+    }
 }
 
 .editor-container {
@@ -504,5 +703,14 @@ button.delete:hover {
     .tab-btn {
         padding: 4px 12px;
         font-size: 1.25rem;
+    }
+
+    .font-size-control {
+        font-size: 0.85em;
+        gap: 0.5rem;
+    }
+
+    #font-size-slider {
+        width: 120px;
     }
 }
