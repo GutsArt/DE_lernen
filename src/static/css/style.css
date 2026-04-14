@@ -279,9 +279,11 @@ a:hover {
     gap: 0.8rem;
 }
 
-.settings-control input[type="range"] {
+.settings-control input[type="range"],
+.settings-control select {
     flex: 1;
     cursor: pointer;
+    min-width: 0;
 }
 
 .settings-control span {

@@ -159,7 +159,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const mainTextHTML = `<b>${source}</b>: <span class="copyable-word">${translationInfo.translation}</span>`;
         const mainText = createRow(mainTextHTML, '🔊', () => {
             const utterance = new SpeechSynthesisUtterance(wordId);
-            utterance.lang = 'de-DE';
+            const selectedVoice = getSelectedVoice();
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+                utterance.lang = selectedVoice.lang;
+            } else {
+                utterance.lang = (voiceLangSelect ? voiceLangSelect.value : 'de') + '-DE';
+            }
             speechSynthesis.speak(utterance);
         });
 
@@ -252,7 +258,13 @@ document.addEventListener('DOMContentLoaded', () => {
         speakButton.innerText = "🔊";
         speakButton.addEventListener("click", function () {
             const utterance = new SpeechSynthesisUtterance(sentence);
-            utterance.lang = "de-DE";
+            const selectedVoice = getSelectedVoice();
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+                utterance.lang = selectedVoice.lang;
+            } else {
+                utterance.lang = (voiceLangSelect ? voiceLangSelect.value : 'de') + '-DE';
+            }
             speechSynthesis.speak(utterance);
         });
         sentenceTranslationBox.appendChild(speakButton);    
@@ -497,6 +509,86 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // === Голос и язык озвучки ===
+    const voiceLangSelect = document.getElementById('voice-lang-select');
+    const voiceSelect = document.getElementById('voice-select');
+
+    const storedVoiceName = localStorage.getItem('selectedVoiceName');
+    const storedVoiceLang = localStorage.getItem('selectedVoiceLang') || 'de';
+
+    const loadVoiceSettings = () => {
+        if (voiceLangSelect) {
+            voiceLangSelect.value = storedVoiceLang;
+        }
+    };
+
+    const populateVoiceList = () => {
+        const voices = speechSynthesis.getVoices();
+        const selectedLang = voiceLangSelect ? voiceLangSelect.value : 'de';
+        const filteredVoices = voices.filter(v => v.lang.toLowerCase().startsWith(selectedLang));
+
+        if (!voiceSelect) return;
+        voiceSelect.innerHTML = '';
+
+        if (filteredVoices.length === 0) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'Голосів не знайдено';
+            voiceSelect.appendChild(option);
+            return;
+        }
+
+        filteredVoices.forEach(voice => {
+            const option = document.createElement('option');
+            option.value = voice.name;
+            option.textContent = `${voice.name} (${voice.lang})`;
+            voiceSelect.appendChild(option);
+        });
+
+        const selectedVoiceName = localStorage.getItem('selectedVoiceName');
+        if (selectedVoiceName) {
+            const matching = Array.from(voiceSelect.options).find(opt => opt.value === selectedVoiceName);
+            if (matching) {
+                voiceSelect.value = selectedVoiceName;
+            }
+        }
+
+        if (!voiceSelect.value && voiceSelect.options.length > 0) {
+            voiceSelect.selectedIndex = 0;
+            localStorage.setItem('selectedVoiceName', voiceSelect.value);
+        }
+    };
+
+    if (voiceLangSelect) {
+        voiceLangSelect.addEventListener('change', () => {
+            localStorage.setItem('selectedVoiceLang', voiceLangSelect.value);
+            populateVoiceList();
+        });
+    }
+
+    if (voiceSelect) {
+        voiceSelect.addEventListener('change', () => {
+            localStorage.setItem('selectedVoiceName', voiceSelect.value);
+        });
+    }
+
+    const getSelectedVoice = () => {
+        const storedVoiceName = localStorage.getItem('selectedVoiceName');
+        const selectedLang = (voiceLangSelect ? voiceLangSelect.value : 'de').toLowerCase();
+        const voices = speechSynthesis.getVoices();
+        const filteredVoices = voices.filter(v => v.lang.toLowerCase().startsWith(selectedLang));
+        const selectedVoice = filteredVoices.find(voice => voice.name === storedVoiceName) || filteredVoices[0];
+        return selectedVoice;
+    };
+
+    const loadSpeechVoices = () => {
+        loadVoiceSettings();
+        populateVoiceList();
+    };
+
+    loadSpeechVoices();
+    window.speechSynthesis.onvoiceschanged = loadSpeechVoices;
 
     // === Управление размером шрифта ===
     const slider = document.getElementById('font-size-slider');
