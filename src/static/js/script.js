@@ -166,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 utterance.lang = (voiceLangSelect ? voiceLangSelect.value : 'de') + '-DE';
             }
+            utterance.rate = getSelectedSpeechRate();
             speechSynthesis.speak(utterance);
         });
 
@@ -265,6 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 utterance.lang = (voiceLangSelect ? voiceLangSelect.value : 'de') + '-DE';
             }
+            utterance.rate = getSelectedSpeechRate();
             speechSynthesis.speak(utterance);
         });
         sentenceTranslationBox.appendChild(speakButton);    
@@ -513,9 +515,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // === Голос и язык озвучки ===
     const voiceLangSelect = document.getElementById('voice-lang-select');
     const voiceSelect = document.getElementById('voice-select');
+    const rateSlider = document.getElementById('speech-rate-slider');
+    const rateDisplay = document.getElementById('speech-rate-display');
+    const themeToggle = document.getElementById('theme-toggle');
 
     const storedVoiceName = localStorage.getItem('selectedVoiceName');
     const storedVoiceLang = localStorage.getItem('selectedVoiceLang') || 'de';
+    const storedSpeechRate = localStorage.getItem('speechRate') || '1';
+    const storedTheme = localStorage.getItem('theme') || 'dark';
 
     const loadVoiceSettings = () => {
         if (voiceLangSelect) {
@@ -573,6 +580,32 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (rateSlider) {
+        rateSlider.addEventListener('input', (e) => {
+            const rate = e.target.value;
+            if (rateDisplay) {
+                rateDisplay.textContent = Number(rate).toFixed(2) + 'x';
+            }
+            localStorage.setItem('speechRate', rate);
+        });
+    }
+
+    const applyTheme = (theme) => {
+        document.body.classList.toggle('light', theme === 'light');
+        if (themeToggle) {
+            themeToggle.checked = theme === 'light';
+        }
+    };
+
+    if (themeToggle) {
+        themeToggle.checked = storedTheme === 'light';
+        themeToggle.addEventListener('change', () => {
+            const newTheme = themeToggle.checked ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        });
+    }
+
     const getSelectedVoice = () => {
         const storedVoiceName = localStorage.getItem('selectedVoiceName');
         const selectedLang = (voiceLangSelect ? voiceLangSelect.value : 'de').toLowerCase();
@@ -582,9 +615,21 @@ document.addEventListener('DOMContentLoaded', () => {
         return selectedVoice;
     };
 
+    const getSelectedSpeechRate = () => {
+        const storedRate = localStorage.getItem('speechRate');
+        return storedRate ? Number(storedRate) : 1;
+    };
+
     const loadSpeechVoices = () => {
         loadVoiceSettings();
         populateVoiceList();
+        if (rateSlider) {
+            rateSlider.value = storedSpeechRate;
+        }
+        if (rateDisplay) {
+            rateDisplay.textContent = Number(storedSpeechRate).toFixed(2) + 'x';
+        }
+        applyTheme(storedTheme);
     };
 
     loadSpeechVoices();

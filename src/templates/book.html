@@ -93,6 +93,26 @@
                     <select id="voice-select"></select>
                 </div>
             </div>
+
+            <!-- Скорость озвучки -->
+            <div class="settings-group">
+                <label for="speech-rate-slider">Швидкість озвучення:</label>
+                <div class="settings-control">
+                    <input type="range" id="speech-rate-slider" min="0.5" max="2" step="0.05" value="1">
+                    <span id="speech-rate-display">1.00x</span>
+                </div>
+            </div>
+
+            <!-- Тема -->
+            <div class="settings-group">
+                <label for="theme-toggle">Тема:</label>
+                <div class="settings-control">
+                    <label class="theme-switch">
+                        <input type="checkbox" id="theme-toggle">
+                        <span>Світла тема</span>
+                    </label>
+                </div>
+            </div>
         </div>
     </div>
 
