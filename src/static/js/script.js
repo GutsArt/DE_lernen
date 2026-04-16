@@ -155,7 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         // === 3. Первая строка: основной перевод + 🔊 ===
-        const source = translationInfo.article ? 'Leo' : 'G';
+        const source = translationInfo.article
+            ? `<a href="https://dict.leo.org/russisch-deutsch/${encodeURIComponent(wordId)}" target="_blank" rel="noopener noreferrer">Leo</a>`
+            : 'G';
         const mainTextHTML = `<b>${source}</b>: <span class="copyable-word">${translationInfo.translation}</span>`;
         const mainText = createRow(mainTextHTML, '🔊', () => {
             const utterance = new SpeechSynthesisUtterance(wordId);
