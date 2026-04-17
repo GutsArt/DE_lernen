@@ -77,6 +77,7 @@ def get_word_translate(soup):
             else:
                 article = samp.get_text(strip=True)
     
+    translation = translate_sentence(translation, src='ru', dest='uk')
     return {"translation": translation, "article": article}
 
 
