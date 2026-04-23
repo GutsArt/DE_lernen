@@ -25,20 +25,22 @@ def get_word_type(soup):
 
 
 def get_word_translate(soup):
+    NOT_FOUND = {"translation": "Не найдено", "article": "Не найдено"}
+    
     section = soup.find("div", {"aria-atomic": "true", "class": "section wgt c-link", "data-dz-role": "section"})
     if not section:
-        return {"translation": "Не найдено", "article": "Не найдено"}
+        return NOT_FOUND
     
     table = section.find("table", {"class": "tblf1 tblf-fullwidth tblf-alternate"})
     if not table:
-        return {"translation": "Не найдено", "article": "Не найдено"}
+        return NOT_FOUND
     
     tbody = table.find("tbody")
     tr = tbody.find("tr")
     tds = tr.find_all("td", {"data-dz-attr": "relink"})
     
     if not tds:
-        return {"translation": "Не найдено", "article": "Не найдено"}
+        return NOT_FOUND
     
     # translation = tds[0].find("a").text if tds[0].find("a") else "Не найдено"
     td_first = tds[0].find("a")
@@ -94,9 +96,6 @@ def translate_word(word):
     
  
 # # Translate full sentences with Google Translate
-# from googletrans import Translator
-# translator = Translator()
-
 @translate_bp.route('/translate_sentence/<sentence>', methods=['GET'])
 def translate_sentence_route(sentence):
     try:
