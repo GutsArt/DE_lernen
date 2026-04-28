@@ -43,14 +43,25 @@ def get_word_translate(soup):
         return NOT_FOUND
     
     # --- Translation ---
-    td_first = tds[0].find("a")
-    if td_first:
-        td_first = td_first.text.strip()
-    else:
-        td_first = tds[0].find("samp").text 
-        # td_first.replace("|\xa0", "|").replace("\xa0|", "|").strip()
-        td_first = td_first.replace("\xa0", "").replace("[REL.]", "").strip()
-    translation = td_first
+    td_first = tds[0] if tds[0] else (tds[1] if tds[1] else None) # Select the first translation cell, fallback to second if empty
+    if not td_first:
+        return NOT_FOUND
+    
+    # Remove unwanted tags that contain metadata or formatting
+    unwanted_tags = ['small', 'mark', 'sup']
+    for tag in td_first.find_all(unwanted_tags):
+        tag.decompose()
+    
+    raw_text = td_first.get_text()    
+    trans_table = str.maketrans({
+        '\xa0': '',  # Non-breaking space
+        '[': '',
+        ']': '',
+        '-': '',
+    })
+    translation = raw_text.translate(trans_table)
+    
+    translation = translation.replace("[REL.]", "").strip() # Remove specific substrings and normalize whitespace
 
 
     article = ""
